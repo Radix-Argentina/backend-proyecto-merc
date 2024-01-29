@@ -109,4 +109,14 @@ const updateUserInfo = async (req, res) => {
     }
 }
 
-module.exports = {getUserById, getAllUsers, setAdminFalse, setAdminTrue, setEditorFalse, setEditorTrue, updateUserInfo};
+const deleteUser = async (req, res) => {
+	try {
+		await userModel.findByIdAndDelete(req.params.id);
+		return res.status(200).json("El usuario se eliminó con éxito");
+	} catch (error) {
+		console.log(error);
+        res.status(500).json({ message: error.message });
+	}
+}
+
+module.exports = {getUserById, getAllUsers, setAdminFalse, setAdminTrue, setEditorFalse, setEditorTrue, updateUserInfo, deleteUser};
