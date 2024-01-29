@@ -1,15 +1,19 @@
+const jwt = require('jsonwebtoken');
+const userModel = require("../models/users.model.js");
+
 const validateToken = async (req, res, next) => {
     try {
         const token = req.header("Authorization");
+        if(!token) return res.status(400).json({ message: "Token inválido" });
         const tokenParts = token.split(" ");
     
         if (tokenParts.length !== 2 || tokenParts[0] !== "Bearer") {
             return res.status(400).json({ message: "Token inválido" });
         }
         const jwtToken = tokenParts[1];
-        const { id } = jwt.verify(jwtToken, process.env.JWT);
+        const { _id } = jwt.verify(jwtToken, process.env.JWT);
     
-        const user = await User.findById(id);
+        const user = await userModel.findById(_id);
         req.user = user;
         next();
     }
@@ -25,10 +29,9 @@ const verifyAdmin = async (req, res, next) => {
             if (req.user.isAdmin) {
                 next();
             } else {
-                throw new Error("Error, el token no corresponde a un usuario váido");
+                throw new Error("Acceso denegado");
             }
         });
-        next();
     }
     catch(error){
         console.log(error);
@@ -42,10 +45,9 @@ const verifyEditor = async (req, res, next) => {
             if (req.user.isAdmin || req.user.isEditor) {
                 next();
             } else {
-                throw new Error("Error, el token no corresponde a un usuario váido");
+                throw new Error("Acceso denegado");
             }
         });
-        next();
     }
     catch(error){
         console.log(error);
@@ -59,10 +61,9 @@ const verifyUser = async (req, res, next) => {
             if (req.user._id) {
                 next();
             } else {
-                throw new Error("Error, el token no corresponde a un usuario váido");
+                throw new Error("Acceso denegado");
             }
         });
-        next();
     }
     catch(error){
         console.log(error);
