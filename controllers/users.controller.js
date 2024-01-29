@@ -1,5 +1,6 @@
 const userModel = require("../models/users.model.js");
 const bcrypt = require("bcrypt");
+const validation = require("../helpers/auth.validation.js");
 
 const getUserById = async (req, res) => {
     try{
@@ -85,12 +86,18 @@ const setEditorTrue = async (req, res) => {
     }
 }
 
-const updateUserInfo = async (req, res) => { //Hay que hacer el sistema de autenticacion antes
+const updateUserInfo = async (req, res) => {
     try{
         const user = await userModel.findById(req.params.id);
         if(user){
-            if(req.body.username) user.username = req.body.username;
-            if(req.body.password) user.password = req.body.password;
+            if(req.body?.username) user.username = req.body.username;
+            if(req.body?.password) user.password = req.body.password;
+
+            if(!validation.validateUsername(req.body?.username)) return res.status(400).json({message: "Nombre de usuario inválido"});
+            if(!validation.validatePassword(req.body?.password)) return res.status(400).json({message: "Contraseña inválida"});
+
+            await user.save();
+            return res.status(200).json({message: "El usuario fue modificado con éxito"});
         }
         else{
             return res.status(404).json({ message: "El usuario que se quiere modificar no existe"});
@@ -102,4 +109,4 @@ const updateUserInfo = async (req, res) => { //Hay que hacer el sistema de auten
     }
 }
 
-module.exports = {getUserById, getAllUsers, setAdminFalse, setAdminTrue, setEditorFalse, setEditorTrue};
+module.exports = {getUserById, getAllUsers, setAdminFalse, setAdminTrue, setEditorFalse, setEditorTrue, updateUserInfo};
