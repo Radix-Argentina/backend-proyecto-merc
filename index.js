@@ -1,6 +1,7 @@
 const express = require("express");
 require("dotenv").config();
 const cors = require("cors");
+const connectDB = require("./database/db.js")
 
 
 // Crear aplicacion de backend
@@ -19,6 +20,8 @@ app.use(express.static("public"));
 
 
 // Escucha del servidor
+
+(async () => await connectDB())();
 
 app.listen(port, () =>{
     console.log(`Servidor corriendo en el puerto ${port}`)
