@@ -10,11 +10,13 @@ const usersSchema = new Schema({
         maxLength: 25,
         unique: true
     },
-    role: {
-        type: String,
-        enum: ["admin", "reader", "editor"],
-        default: "reader",
-        required: true,
+    isAdmin: {
+        type: Boolean,
+        default: false,
+    },
+    isEditor: {
+        type: Boolean,
+        default: false,
     },
     password: {
         type: String,

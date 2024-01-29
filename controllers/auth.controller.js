@@ -5,12 +5,13 @@ const usersModel = require("../models/users.model.js");
 
 const register = async (req, res) => {
     try{
-        const {username, password, role} = req.body;
+        const {username, password, isAdmin, isEditor} = req.body;
         const hash = await bcrypt.hash(password, 10);
 
         const newUser = new User({
             username,
-            role,
+            isAdmin,
+            isEditor,
             password: hash,
         });
 
@@ -41,7 +42,7 @@ const login = async (req, res) => {
         if(!isPasswordCorrect) return res.status(400).json({message: "Usuario o contraseña incorrecta"});
     
         const token = jwt.sign(
-            {_id: user._id, username: user.username, role: user.role},
+            {_id: user._id, username: user.username, isAdmin: user.isAdmin, isEditor: user.isEditor},
             process.env.JWT, 
         );
 
@@ -52,3 +53,5 @@ const login = async (req, res) => {
         res.status(500).json({message: error.message});
     }
 }
+
+module.exports = {register, login};
