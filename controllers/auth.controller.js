@@ -2,10 +2,17 @@ const userModel = require("../models/users.model.js");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const usersModel = require("../models/users.model.js");
+const validation = require("../helpers/auth.validation.js");
 
 const register = async (req, res) => {
     try{
         const {username, password, isAdmin, isEditor} = req.body;
+        
+        if(!validation.validateUsername(username)) return res.status(400).json({message: "Nombre de usuario inválido"});
+        if(!validation.validatePassword(password)) return res.status(400).json({message: "Contraseña inválida"});
+        
+        const repeatedUsername = await usersModel.findOne({username: username});
+        if(repeatedUsername) return res.status(400).json({message: "El usuario ya existe"});
         const hash = await bcrypt.hash(password, 10);
 
         const newUser = new User({
@@ -30,6 +37,9 @@ const register = async (req, res) => {
 const login = async (req, res) => {
     try{
         const {username, password} = req.body;
+
+        if(!validation.validateUsername(username)) return res.status(400).json({message: "Nombre de usuario inválido"});
+        if(!validation.validatePassword(password)) return res.status(400).json({message: "Contraseña inválida"});
 
         const user = await usersModel.findOne({username: username});
         if(!user) return res.status(400).json({message: "Usuario o contraseña incorrecta"});
