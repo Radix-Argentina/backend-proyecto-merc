@@ -1,7 +1,8 @@
 const express = require("express");
 require("dotenv").config();
 const cors = require("cors");
-const connectDB = require("./database/db.js")
+const connectDB = require("./database/db.js");
+const usersRoute = require("./routes/users.routes.js");
 
 
 // Crear aplicacion de backend
@@ -17,7 +18,7 @@ app.use(express.json());
 app.use(express.static("public"));
 
 // TODO Poner rutas aqui
-
+app.use("/api", usersRoute);
 
 // Escucha del servidor
 
