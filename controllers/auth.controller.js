@@ -15,7 +15,7 @@ const register = async (req, res) => {
         if(repeatedUsername) return res.status(400).json({message: "El usuario ya existe"});
         const hash = await bcrypt.hash(password, 10);
 
-        const newUser = new User({
+        const newUser = new userModel({
             username,
             isAdmin,
             isEditor,
