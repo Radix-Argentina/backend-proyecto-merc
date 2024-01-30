@@ -18,7 +18,19 @@ const getUserById = async (req, res) => {
 
 const getAllUsers = async (req, res) => {
     try{
-        const users = await userModel.find();
+        const { isAdmin, isEditor } = req.query;
+        let filter = {
+            
+        };
+        if(isAdmin) filter.isAdmin = undefined;
+        if(isAdmin?.toLowerCase() === "true") filter.isAdmin = true;
+        if(isAdmin?.toLowerCase() === "false") filter.isAdmin = false;
+        
+        if(isEditor) filter.isEditor = undefined;
+        if(isEditor?.toLowerCase() === "true") filter.isEditor = true;
+        if(isEditor?.toLowerCase() === "false") filter.isEditor = false;
+
+        const users = await userModel.find(filter);
         return res.status(200).json({
             users,
             message: "Usuarios encontrados con éxito"
