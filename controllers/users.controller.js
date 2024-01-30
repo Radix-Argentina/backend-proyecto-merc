@@ -141,4 +141,32 @@ const deleteUser = async (req, res) => { //Solo se puede eliminar completamente 
 	}
 }
 
-module.exports = {getUserById, getAllUsers, setAdminFalse, setAdminTrue, setEditorFalse, setEditorTrue, updateUserInfo, deleteUser};
+const deactivate = async (req, res) => {
+    try{
+        const user = await userModel.findById(req.params.id);
+        if(!user) return res.status(404).json({ message: "El usuario no existe"});
+        user.isActive = false;
+        await user.save();
+        return res.status(200).json({message: `${user.username} fue desactivado`});
+    }
+    catch(error){
+        console.log(error);
+        res.status(500).json({ message: error.message });
+    }
+}
+
+const activate = async (req, res) => {
+    try{
+        const user = await userModel.findById(req.params.id);
+        if(!user) return res.status(404).json({ message: "El usuario no existe"});
+        user.isActive = true;
+        await user.save();
+        return res.status(200).json({message: `${user.username} fue activado`});
+    }
+    catch(error){
+        console.log(error);
+        res.status(500).json({ message: error.message });
+    }
+}
+
+module.exports = {getUserById, getAllUsers, setAdminFalse, setAdminTrue, setEditorFalse, setEditorTrue, updateUserInfo, deleteUser, deactivate, activate};
