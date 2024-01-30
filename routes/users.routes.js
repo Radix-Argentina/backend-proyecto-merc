@@ -17,8 +17,8 @@ router.put("/users/setAdminFalse/:id", verifyAdmin, usersController.setAdminFals
 router.put("/users/setEditorTrue/:id", verifyAdmin, usersController.setEditorTrue);
 router.put("/users/setEditorFalse/:id", verifyAdmin, usersController.setEditorFalse);
 router.put("/users/activate/:id", verifyAdmin, usersController.activate);
-router.put("/users/deactivate/:id", verifyAdmin, usersController.deactivate);
+router.put("/users/deactivate/:id", verifyAdmin, usersController.deactivate); //Un admin no puede desactivarse a el mismo
 router.put("/users/:id", verifyAdmin, usersController.updateUserInfo); //Tal vez el admin no sea el unico que pueda editar un usuario
-router.delete("/users/:id", verifyAdmin, usersController.deleteUser);
+router.delete("/users/:id", verifyAdmin, usersController.deleteUser); //Un admin no puede eliminarse a el mismo
 
 module.exports = router;

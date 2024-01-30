@@ -127,13 +127,14 @@ const updateUserInfo = async (req, res) => {
 
 const deleteUser = async (req, res) => { //Solo se puede eliminar completamente un usuario desactivado
 	try {
+        if(req.user._id == req.params.id) return res.status(400).json({message: "No puedes eliminarte a ti mismo"});
         const user = await userModel.findById(req.params.id);
         if(user.isActive){
-            return res.status(400).json("Solo se pueden eliminar usuarios no activos");
+            return res.status(400).json({message: "Solo se pueden eliminar usuarios no activos"});
         }
         else{
             await userModel.findByIdAndDelete(req.params.id);
-            return res.status(200).json("El usuario se eliminó con éxito");
+            return res.status(200).json({message: "El usuario se eliminó con éxito"});
         }
 	} catch (error) {
 		console.log(error);
@@ -143,6 +144,7 @@ const deleteUser = async (req, res) => { //Solo se puede eliminar completamente 
 
 const deactivate = async (req, res) => {
     try{
+        if(req.user._id == req.params.id) return res.status(400).json({message: "No puedes desactivarte a ti mismo"});
         const user = await userModel.findById(req.params.id);
         if(!user) return res.status(404).json({ message: "El usuario no existe"});
         user.isActive = false;

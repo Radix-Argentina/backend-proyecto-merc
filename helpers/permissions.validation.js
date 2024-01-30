@@ -1,6 +1,8 @@
 const jwt = require('jsonwebtoken');
 const userModel = require("../models/users.model.js");
 
+//Esto valida si sos admin, editor o simplemente si estas logueado, si tu cuenta esta desactivada no pasas el filtro
+
 const validateToken = async (req, res, next) => {
     try {
         const token = req.header("Authorization");
@@ -26,7 +28,7 @@ const validateToken = async (req, res, next) => {
 const verifyAdmin = async (req, res, next) => {
     try {
         await validateToken(req, res, ()=>{
-            if (req.user?.isAdmin) {
+            if (req.user?.isActive && req.user?.isAdmin) { 
                 next();
             } else {
                 throw new Error("Acceso denegado");
@@ -42,7 +44,7 @@ const verifyAdmin = async (req, res, next) => {
 const verifyEditor = async (req, res, next) => {
     try {
         await validateToken(req, res, ()=>{
-            if (req.user.isAdmin || req.user.isEditor) {
+            if (req.user?.isActive && req.user.isAdmin || req.user.isEditor) {
                 next();
             } else {
                 throw new Error("Acceso denegado");
@@ -58,7 +60,7 @@ const verifyEditor = async (req, res, next) => {
 const verifyUser = async (req, res, next) => {
     try {
         await validateToken(req, res, ()=>{
-            if (req.user._id) {
+            if (req.user?.isActive && req.user?._id) {
                 next();
             } else {
                 throw new Error("Acceso denegado");
