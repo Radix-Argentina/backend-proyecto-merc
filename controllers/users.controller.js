@@ -104,11 +104,14 @@ const setEditorTrue = async (req, res) => {
 
 const updateUserInfo = async (req, res) => {
     try{
+        if(!req.user.isAdmin && req.user._id != req.params.id) return res.status(400).json({message: "No tienes autorización para modificar este usuario"});
         const user = await userModel.findById(req.params.id);
         if(user){
             if(req.body?.username) user.username = req.body.username;
-            if(req.body?.password) user.password = req.body.password;
-
+            if(req.body?.password) {
+                const hash = await bcrypt.hash(req.body.password, 10)
+                user.password = hash;
+            };
             if(!validation.validateUsername(req.body?.username)) return res.status(400).json({message: "Nombre de usuario inválido"});
             if(!validation.validatePassword(req.body?.password)) return res.status(400).json({message: "Contraseña inválida"});
 

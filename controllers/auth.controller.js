@@ -49,9 +49,11 @@ const login = async (req, res) => {
         );
 
         if(!isPasswordCorrect) return res.status(400).json({message: "Usuario o contraseña incorrecta"});
-    
+        
+        if(!user.isActive) return res.status(400).json({message: "Inicie sesión con un usuario activo"});
+
         const token = jwt.sign(
-            {_id: user._id, username: user.username, isAdmin: user.isAdmin, isEditor: user.isEditor},
+            {_id: user._id, username: user.username, isAdmin: user.isAdmin, isEditor: user.isEditor, isActive: user.isActive},
             process.env.JWT, 
         );
 
