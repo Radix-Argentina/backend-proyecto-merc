@@ -18,6 +18,10 @@ const usersSchema = new Schema({
         type: Boolean,
         default: false,
     },
+    isActive: {
+        type: Boolean,
+        default: true,
+    },
     password: {
         type: String,
         required: true,

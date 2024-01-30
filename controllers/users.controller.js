@@ -18,10 +18,16 @@ const getUserById = async (req, res) => {
 
 const getAllUsers = async (req, res) => {
     try{
-        const { isAdmin, isEditor } = req.query;
+        const { isActive=true, isAdmin, isEditor } = req.query;
+
         let filter = {
-            
+            isActive,
         };
+
+        if(typeof filter.isActive === "string" && filter.isActive.toLowerCase() === "true") filter.isActive = true;
+        else if(typeof filter.isActive === "string" && filter.isActive.toLowerCase() === "false") filter.isActive = false;
+        else if(typeof filter.isActive === "string") filter.isActive = undefined; 
+
         if(isAdmin) filter.isAdmin = undefined;
         if(isAdmin?.toLowerCase() === "true") filter.isAdmin = true;
         if(isAdmin?.toLowerCase() === "false") filter.isAdmin = false;

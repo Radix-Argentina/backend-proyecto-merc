@@ -26,7 +26,7 @@ const validateToken = async (req, res, next) => {
 const verifyAdmin = async (req, res, next) => {
     try {
         await validateToken(req, res, ()=>{
-            if (req.user.isAdmin) {
+            if (req.user?.isAdmin) {
                 next();
             } else {
                 throw new Error("Acceso denegado");
