@@ -18,15 +18,13 @@ const getUserById = async (req, res) => {
 
 const getAllUsers = async (req, res) => {
     try{
-        const { isActive=true, isAdmin, isEditor } = req.query;
+        const { isActive, isAdmin, isEditor } = req.query;
 
-        let filter = {
-            isActive,
-        };
+        let filter = {};
 
-        if(typeof filter.isActive === "string" && filter.isActive.toLowerCase() === "true") filter.isActive = true;
-        else if(typeof filter.isActive === "string" && filter.isActive.toLowerCase() === "false") filter.isActive = false;
-        else if(typeof filter.isActive === "string") filter.isActive = undefined; 
+        if(isActive) filter.isActive = undefined;
+        if(isActive?.toLowerCase() === "true") filter.isActive = true;
+        if(isActive?.toLowerCase() === "false") filter.isActive = false;
 
         if(isAdmin) filter.isAdmin = undefined;
         if(isAdmin?.toLowerCase() === "true") filter.isAdmin = true;
@@ -127,10 +125,16 @@ const updateUserInfo = async (req, res) => {
     }
 }
 
-const deleteUser = async (req, res) => {
+const deleteUser = async (req, res) => { //Solo se puede eliminar completamente un usuario desactivado
 	try {
-		await userModel.findByIdAndDelete(req.params.id);
-		return res.status(200).json("El usuario se eliminó con éxito");
+        const user = await userModel.findById(req.params.id);
+        if(user.isActive){
+            return res.status(400).json("Solo se pueden eliminar usuarios no activos");
+        }
+        else{
+            await userModel.findByIdAndDelete(req.params.id);
+            return res.status(200).json("El usuario se eliminó con éxito");
+        }
 	} catch (error) {
 		console.log(error);
         res.status(500).json({ message: error.message });
