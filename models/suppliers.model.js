@@ -1,5 +1,7 @@
 const mongoose = require("mongoose");
 
+const {Schema} = mongoose;
+
 const suppliersSchema = new Schema({
     name: {
         type: String,
@@ -23,7 +25,6 @@ const suppliersSchema = new Schema({
     },
     address: {
         type: String,
-        unique: true,
         trim: true,
         minLength: 3,
         maxLength: 100,

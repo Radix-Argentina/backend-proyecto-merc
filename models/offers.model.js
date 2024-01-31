@@ -1,5 +1,7 @@
 const mongoose = require("mongoose");
 
+const {Schema} = mongoose;
+
 const offersSchema = new Schema({
     date: {
         type: Date,

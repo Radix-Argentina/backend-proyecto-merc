@@ -7,9 +7,13 @@ const createSupplier = async (req, res) => {
 
         if(!name) return res.status(400).json({message: "El nombre es obligatorio"});
         if(!validations.validateName(name)) return res.status(400).json({message: "Nombre inválido"});
-        if(mail && !validations.validateMail(mail)) return res.status(400).json({message: "Correo inválido"});
-        if(phone && !validations.validatePhone(phone)) return res.status(400).json({message: "Teléfono inválido"});
-        if(address && !validations.validateAddress(address)) return res.status(400).json({message: "Dirección inválida"});
+
+        const repeatedName = await supplierModel.findOne({ name });
+        if(repeatedName) return res.status(400).json({message: "Ya existe un provedor con ese nombre"});
+        
+        if(typeof mail == "string" && !validations.validateMail(mail)) return res.status(400).json({message: "Correo inválido"});
+        if(typeof phone == "string"  && !validations.validatePhone(phone)) return res.status(400).json({message: "Teléfono inválido"});
+        if(typeof address == "string" && !validations.validateAddress(address)) return res.status(400).json({message: "Dirección inválida"});
 
         const newSupplier = new supplierModel({ name, mail, phone, address});
         await newSupplier.save();
