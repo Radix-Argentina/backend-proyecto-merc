@@ -1,6 +1,6 @@
 const supplierModel = require("../models/suppliers.model.js");
 const offerModel = require("../models/offers.model.js");
-const validations = require("../helpers/suppliers.validations.js");
+const validations = require("../helpers/validations.js");
 
 const createSupplier = async (req, res) => {
     try {

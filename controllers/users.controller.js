@@ -1,6 +1,6 @@
 const userModel = require("../models/users.model.js");
 const bcrypt = require("bcrypt");
-const validation = require("../helpers/auth.validation.js");
+const validation = require("../helpers/validations.js");
 
 const getUserById = async (req, res) => {
     try{
