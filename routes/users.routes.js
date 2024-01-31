@@ -1,6 +1,6 @@
 const express = require('express');
 const usersController = require("../controllers/users.controller.js");
-const {verifyAdmin, verifyUser} = require("../helpers/permissions.validation.js");
+const {verifyAdmin, verifyUser} = require("../middlewares/permissions.js");
 
 const router = express.Router();
 
@@ -11,7 +11,7 @@ router.get("/users/:id", verifyAdmin, usersController.getUserById);
 // buscar inactivos  --->  http://localhost:5500/api/users?isActive=false
 // podes buscar tambien por admin  --->  http://localhost:5500/api/users?isAdmin=true
 // o con 2 filtros  --->  http://localhost:5500/api/users?isActive=false&isAdmin=false
-// analogo para editor
+// analogo para editor TAMBIEN PODES PONER "all" para que muestro tanto los true como los false
 router.put("/users/setAdminTrue/:id", verifyAdmin, usersController.setAdminTrue);
 router.put("/users/setAdminFalse/:id", verifyAdmin, usersController.setAdminFalse);
 router.put("/users/setEditorTrue/:id", verifyAdmin, usersController.setEditorTrue);
