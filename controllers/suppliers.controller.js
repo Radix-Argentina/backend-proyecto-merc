@@ -1,4 +1,5 @@
 const supplierModel = require("../models/suppliers.model.js");
+const offerModel = require("../models/offers.model.js");
 const validations = require("../helpers/suppliers.validations.js");
 
 const createSupplier = async (req, res) => {
@@ -105,4 +106,56 @@ const activate = async (req, res) => {
     }
 }
 
-module.exports = { createSupplier, updateSupplier, deleteSupplier, activate, deactivate};
+const getSupplierById = async (req, res) => {
+    try{
+        const supplier = await supplierModel.findById(req.params.id)
+        if(!supplier) return res.status(404).json({ message: "El provedor no existe"});
+        
+        const offers = await offerModel.find({supplierId: supplier._id}).populate({
+            path: "varietyId",
+            select: ["name", "productId"],
+            populate: {
+                path: "productId",
+                select: ["name"]
+            }
+        }); //Capaz haya que cambiar algunos nombres de propiedades porque figuran como id
+
+        return res.status(200).json({
+            supplier: {
+                ...supplier._doc,
+                offers
+            },
+            message: "Provedor encontrado con éxito"
+        });
+    }
+    catch(error){
+        console.log(error);
+        res.status(500).json({ message: error.message });
+    }
+}
+
+const getAllSuppliers = async (req, res) => {
+    try{
+        const { isActive } = req.query;
+
+        let filter = {};
+
+        if(isActive) filter.isActive = undefined;
+        if(isActive?.toLowerCase() === "true") filter.isActive = true;
+        if(isActive?.toLowerCase() === "false") filter.isActive = false;
+        if(isActive?.toLowerCase() === "all") delete filter.isActive;
+
+        const suppliers = await supplierModel.find(filter);
+        
+        return res.status(200).json({ //Si esta funcion lo requiere se deveria n hacer los pupoulate de cada supplier, sino dejar asi
+            suppliers,
+            message: "Provedores encontrados con éxito"
+        });
+    }
+    catch(error){
+        console.log(error);
+        res.status(500).json({ message: error.message });
+    }
+}
+
+module.exports = { createSupplier, updateSupplier, deleteSupplier, activate, deactivate, getSupplierById, getAllSuppliers};

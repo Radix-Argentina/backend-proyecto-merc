@@ -8,5 +8,7 @@ router.put("/suppliers/:id", suppliersController.updateSupplier);
 router.delete("/suppliers/:id", suppliersController.deleteSupplier);
 router.put("/suppliers/activate/:id", suppliersController.activate);
 router.put("/suppliers/deactivate/:id", suppliersController.deactivate);
+router.get("/suppliers/:id", suppliersController.getSupplierById);
+router.get("/suppliers", suppliersController.getAllSuppliers);
 
 module.exports = router;
