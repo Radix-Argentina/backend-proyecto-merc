@@ -25,14 +25,17 @@ const getAllUsers = async (req, res) => {
         if(isActive) filter.isActive = undefined;
         if(isActive?.toLowerCase() === "true") filter.isActive = true;
         if(isActive?.toLowerCase() === "false") filter.isActive = false;
+        if(isActive?.toLowerCase() === "all") delete filter.isActive;
 
         if(isAdmin) filter.isAdmin = undefined;
         if(isAdmin?.toLowerCase() === "true") filter.isAdmin = true;
         if(isAdmin?.toLowerCase() === "false") filter.isAdmin = false;
+        if(isAdmin?.toLowerCase() === "all") delete filter.isAdmin;
         
         if(isEditor) filter.isEditor = undefined;
         if(isEditor?.toLowerCase() === "true") filter.isEditor = true;
         if(isEditor?.toLowerCase() === "false") filter.isEditor = false;
+        if(isEditor?.toLowerCase() === "all") delete filter.isEditor;
 
         const users = await userModel.find(filter);
         return res.status(200).json({
