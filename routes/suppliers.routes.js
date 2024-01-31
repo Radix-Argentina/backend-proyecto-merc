@@ -6,5 +6,7 @@ const router = express.Router();
 router.post("/suppliers", suppliersController.createSupplier);
 router.put("/suppliers/:id", suppliersController.updateSupplier);
 router.delete("/suppliers/:id", suppliersController.deleteSupplier);
+router.put("/suppliers/activate/:id", suppliersController.activate);
+router.put("/suppliers/deactivate/:id", suppliersController.deactivate);
 
 module.exports = router;

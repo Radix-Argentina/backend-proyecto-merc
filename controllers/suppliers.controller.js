@@ -77,4 +77,32 @@ const deleteSupplier = async (req, res) => {
     }
 }
 
-module.exports = { createSupplier, updateSupplier, deleteSupplier};
+const deactivate = async (req, res) => {
+    try{
+        const supplier = await supplierModel.findById(req.params.id);
+        if(!supplier) return res.status(404).json({ message: "El provedor no existe"});
+        supplier.isActive = false;
+        await supplier.save();
+        return res.status(200).json({message: `El provedor ${supplier.name} fue desactivado`});
+    }
+    catch(error){
+        console.log(error);
+        res.status(500).json({ message: error.message });
+    }
+}
+
+const activate = async (req, res) => {
+    try{
+        const supplier = await supplierModel.findById(req.params.id);
+        if(!supplier) return res.status(404).json({ message: "El provedor no existe"});
+        supplier.isActive = true;
+        await supplier.save();
+        return res.status(200).json({message: `El provedor ${supplier.name} fue activado`});
+    }
+    catch(error){
+        console.log(error);
+        res.status(500).json({ message: error.message });
+    }
+}
+
+module.exports = { createSupplier, updateSupplier, deleteSupplier, activate, deactivate};
