@@ -123,4 +123,52 @@ const activate = async (req, res) => {
     }
 }
 
-module.exports = {createVariety, updateVariety, deleteVariety, deactivate, activate};
+const getVarietyById = async (req, res) => { //Posiblemente en todos estos get by id que hacen un populate o buscan info de otra tabla se deberian agregar queries para isActive
+    try{
+        const variety = await varietyModel.findById(req.params.id)
+        if(!variety) return res.status(404).json({ message: "La variedad no existe"});
+        
+        const offers = await offerModel.find({varietyId: variety._id});
+
+        return res.status(200).json({
+            variety: {
+                ...variety._doc,
+                offers
+            },
+            message: "Variedad encontrada con éxito"
+        });
+    }
+    catch(error){
+        console.log(error);
+        res.status(500).json({ message: error.message });
+    }
+}
+
+const getAllVarieties = async (req, res) => {
+    try{
+        const { isActive } = req.query;
+
+        let filter = {};
+
+        if(isActive) filter.isActive = undefined;
+        if(isActive?.toLowerCase() === "true") filter.isActive = true;
+        if(isActive?.toLowerCase() === "false") filter.isActive = false;
+        if(isActive?.toLowerCase() === "all") delete filter.isActive;
+
+        const varieties = await varietyModel.find(filter).populate({
+            path: "productId",
+            select: ["name", "isActive"],
+        });
+
+        return res.status(200).json({ //Si esta funcion lo requiere se deverian hacer los populate de cada variety con las offers, sino dejar asi
+            varieties,
+            message: "Variedades encontradas con éxito"
+        });
+    }
+    catch(error){
+        console.log(error);
+        res.status(500).json({ message: error.message });
+    }
+}
+
+module.exports = {createVariety, updateVariety, deleteVariety, deactivate, activate, getVarietyById, getAllVarieties};

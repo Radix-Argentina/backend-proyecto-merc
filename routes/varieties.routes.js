@@ -8,5 +8,7 @@ router.put("/varieties/:id", varietyController.updateVariety);
 router.delete("/varieties/:id", varietyController.deleteVariety);
 router.put("/varieties/activate/:id", varietyController.activate);
 router.put("/varieties/deactivate/:id", varietyController.deactivate);
+router.get("/varieties/:id", varietyController.getVarietyById);
+router.get("/varieties/", varietyController.getAllVarieties);
 
 module.exports = router;
