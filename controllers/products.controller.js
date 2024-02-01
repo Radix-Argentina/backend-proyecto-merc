@@ -122,4 +122,50 @@ const activate = async (req, res) => {
     }
 }
 
-module.exports = {createProduct, updateProduct, deleteProduct, deactivate, activate};
+const getProductById = async (req, res) => { //Aqui se devuelve el producto con sus variedades, pero capaz sea funcional que devuelva a su vez las variedades con las offers
+    //Si no se lo requiere en el front conviene que mande solo las variedades asi no manda de más
+    try{
+        const product = await productModel.findById(req.params.id)
+        if(!product) return res.status(404).json({ message: "El producto no existe"});
+        
+        const varieties = await varietyModel.find({productId: product._id});
+
+        return res.status(200).json({
+            product: {
+                ...product._doc,
+                varieties
+            },
+            message: "Producto encontrado con éxito"
+        });
+    }
+    catch(error){
+        console.log(error);
+        res.status(500).json({ message: error.message });
+    }
+}
+
+const getAllProducts = async (req, res) => {
+    try{
+        const { isActive } = req.query;
+
+        let filter = {};
+
+        if(isActive) filter.isActive = undefined;
+        if(isActive?.toLowerCase() === "true") filter.isActive = true;
+        if(isActive?.toLowerCase() === "false") filter.isActive = false;
+        if(isActive?.toLowerCase() === "all") delete filter.isActive;
+
+        const products = await productModel.find(filter);
+        
+        return res.status(200).json({ //Si esta funcion lo requiere se deveria n hacer los populate de cada product con las varieties, sino dejar asi
+            products,
+            message: "Productos encontrados con éxito"
+        });
+    }
+    catch(error){
+        console.log(error);
+        res.status(500).json({ message: error.message });
+    }
+}
+
+module.exports = {createProduct, updateProduct, deleteProduct, deactivate, activate, getProductById, getAllProducts};
