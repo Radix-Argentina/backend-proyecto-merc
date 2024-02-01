@@ -1,5 +1,5 @@
 const express = require('express');
-const productController = require("../controllers/products.controller");
+const productController = require("../controllers/products.controller.js");
 
 const router = express.Router();
 //Falta ponerle los middlewares de permisos

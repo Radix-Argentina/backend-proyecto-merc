@@ -6,6 +6,7 @@ const usersRoute = require("./routes/users.routes.js");
 const authRoute = require("./routes/auth.routes.js");
 const suppliersRoute = require("./routes/suppliers.routes.js");
 const productsRoute = require("./routes/products.routes.js");
+const varietiesRoute = require("./routes/varieties.routes.js");
 
 
 // Crear aplicacion de backend
@@ -26,6 +27,7 @@ app.use("/api", usersRoute);
 app.use("/api", authRoute);
 app.use("/api", suppliersRoute);
 app.use("/api", productsRoute);
+app.use("/api", varietiesRoute);
 
 // Escucha del servidor
 
