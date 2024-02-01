@@ -1,5 +1,6 @@
 const productModel = require("../models/products.model.js");
 const varietyModel = require("../models/varieties.model.js");
+const offerModel = require("../models/offers.model.js");
 const validation = require("../helpers/validations.js");
 
 const createProduct = async (req, res) => {
@@ -76,4 +77,49 @@ const deleteProduct = async (req, res) => { //Al borrar debe estar inactivo, y n
     }
 }
 
-module.exports = {createProduct, updateProduct, deleteProduct};
+const deactivate = async (req, res) => { //Desactivar un provedor implica desactivar sus varieties y desactivar sus varieties implica desactivar sus  offers
+    //Aca se anidan 2 for para descativar todo:
+    //OP1: no hacerlo y que el usuario lo haga a mano
+    //OP2: hacerlo y rezar que no ocurran inconsistencias por no ser atomica (Esta esta desarrollada)
+    try{
+        const product = await productModel.findById(req.params.id);
+        if(!product) return res.status(404).json({ message: "El producto no existe"});
+        
+        const varieties = await varietyModel.find({productId: product._id}); //Probar si desactiva todas las variedades
+        for(let i = 0; i < varieties.length; i++){
+            
+            const offers = await offerModel.find({varietyId: varieties[i]._id});
+            for(let j = 0; j < offers.length; j++){
+                offers[i].isActive = false;
+                await offers[i].save();
+            }
+
+            varieties[i].isActive = false;
+            await varieties[i].save();
+        }
+        product.isActive = false;
+        
+        await product.save();
+        return res.status(200).json({message: `El producto ${product.name} fue desactivado`});
+    }
+    catch(error){
+        console.log(error);
+        res.status(500).json({ message: error.message });
+    }
+}
+
+const activate = async (req, res) => {
+    try{
+        const product = await productModel.findById(req.params.id);
+        if(!product) return res.status(404).json({ message: "El producto no existe"});
+        product.isActive = true;
+        await product.save();
+        return res.status(200).json({message: `El producto ${product.name} fue activado`});
+    }
+    catch(error){
+        console.log(error);
+        res.status(500).json({ message: error.message });
+    }
+}
+
+module.exports = {createProduct, updateProduct, deleteProduct, deactivate, activate};

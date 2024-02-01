@@ -87,8 +87,8 @@ const deactivate = async (req, res) => { //Desactivar un provedor implica desact
         const supplier = await supplierModel.findById(req.params.id);
         if(!supplier) return res.status(404).json({ message: "El provedor no existe"});
         
-        const offers = await offerModel.find({supplierId: supplier._id}); //Probar si desactiva todas las  offers
-        for(let i = 0; i<offers.length; i++){
+        const offers = await offerModel.find({supplierId: supplier._id}); //Probar si desactiva todas las  
+        for(let i = 0; i < offers.length; i++){
             offers[i].isActive = false;
             await offers[i].save();
         }
