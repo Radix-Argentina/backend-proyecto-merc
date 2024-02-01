@@ -60,12 +60,16 @@ const updateSupplier = async (req, res) => {
     }
 }
 
-const deleteSupplier = async (req, res) => {
+const deleteSupplier = async (req, res) => { //Al borrar debe estar inactivo, y no puede borrarse si tiene offers creadas
     try{
         const supplier = await supplierModel.findById(req.params.id);
         if(!supplier) return res.status(404).json({message: "El provedor que desea eliminar no existe"});
         if(supplier.isActive) return res.status(400).json({message: "Solo puede eliminar provedores inactivos"});
         
+        const offers = await offerModel.find({supplierId: supplier._id});
+        
+        if(offers.length > 0) return res.status(400).json({message: "No se puede eliminar un provedor con ofertas creadas"});
+
         await supplierModel.findByIdAndDelete(req.params.id);
         return res.status(200).json({
             supplier,
@@ -78,11 +82,18 @@ const deleteSupplier = async (req, res) => {
     }
 }
 
-const deactivate = async (req, res) => {
+const deactivate = async (req, res) => { //Desactivar un provedor implica desactivar sus offers
     try{
         const supplier = await supplierModel.findById(req.params.id);
         if(!supplier) return res.status(404).json({ message: "El provedor no existe"});
+        
+        const offers = await offerModel.find({supplierId: supplier._id}); //Probar si desactiva todas las  offers
+        for(let i = 0; i<offers.length; i++){
+            offers[i].isActive = false;
+            await offers[i].save();
+        }
         supplier.isActive = false;
+        
         await supplier.save();
         return res.status(200).json({message: `El provedor ${supplier.name} fue desactivado`});
     }
