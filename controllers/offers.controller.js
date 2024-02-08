@@ -80,6 +80,25 @@ const updateOffer = async (req, res) => {
     }
 }
 
+const deleteOffer = async (req, res) => { //Al borrar debe estar inactiva
+    try {
+        const offer = await offerModel.findById(req.params.id);
+        if(!offer) return res.status(404).json({message: "La oferta que desea eliminar no existe"});
+        
+        if(offer.isActive) return res.status(400).json({message: "Solo puede eliminar ofertas inactivas"});
+
+        await offerModel.findByIdAndDelete(req.params.id);
+        return res.status(200).json({
+            offer,
+            message: "La oferta fue eliminada con éxito",
+        });
+    }
+    catch (error) {
+        console.log(error);
+        res.status(500).json({message: error.message});
+    }
+}
+
 const getOfferById = async (req, res) => {
     try{
         const offer = await offerModel.getById(req.params.id).populate({
@@ -105,4 +124,4 @@ const getOfferById = async (req, res) => {
     }
 }
 
-module.exports = {getOfferById, createOffer, updateOffer};
+module.exports = {getOfferById, createOffer, updateOffer, deleteOffer};
