@@ -134,7 +134,7 @@ const getOfferById = async (req, res) => {
     try{
         const offer = await offerModel.findById(req.params.id).populate({
             path: "supplierId",
-            select: ["name","isActive"] //Podría devolver mas informacion pero por ahora lo dejo asi
+            select: ["name","isActive","_id"]
         }).populate({
             path: "varietyId",
             select: ["name","_id","productId", "isActive"],
@@ -144,22 +144,25 @@ const getOfferById = async (req, res) => {
         const product = await productModel.findById(offer.varietyId.productId);
         
         const response = {
+            _id: offer._id,
             product: {
+                _id: product._id,
                 name: product.name,
                 isActive: product.isActive,
                 variety: {
+                    _id: offer.varietyId._id,
                     name: offer.varietyId.name,
                     isActive: offer.varietyId.isActive
                 }
             },
             supplier: {
+                _id: offer.supplierId._id,
                 name: offer.supplierId.name,
                 isActive: offer.supplierId.isActive
             },
             date: offer.date,
             price: offer.price,
             isActive: offer.isActive
-
         }
         return res.status(200).json({
             offer: response,
@@ -172,7 +175,7 @@ const getOfferById = async (req, res) => {
     }
 }
 
-const getAllProducts = async (req, res) => {
+const getAllOffers = async (req, res) => {
     try{
         const { isActive } = req.query;
 
@@ -183,11 +186,46 @@ const getAllProducts = async (req, res) => {
         if(isActive?.toLowerCase() === "false") filter.isActive = false;
         if(isActive?.toLowerCase() === "all") delete filter.isActive;
 
-        const products = await productModel.find(filter);
+        const offers = await offerModel.find(filter).populate({
+            path: "supplierId",
+            select: ["name","isActive","_id"]
+        }).populate({
+            path: "varietyId",
+            select: ["name","_id","productId", "isActive"],
+        });
+        let responseArray = [];
+
+        for(let i = 0; i < offers.length; i++){
+
+            const product = await productModel.findById(offers[i].varietyId.productId);
+
+            const response = {
+                _id: offers[i]._id,
+                product: {
+                    _id: product._id,
+                    name: product.name,
+                    isActive: product.isActive,
+                    variety: {
+                        _id: offers[i].varietyId._id,
+                        name: offers[i].varietyId.name,
+                        isActive: offers[i].varietyId.isActive
+                    }
+                },
+                supplier: {
+                    _id: offers[i].supplierId._id,
+                    name: offers[i].supplierId.name,
+                    isActive: offers[i].supplierId.isActive
+                },
+                date: offers[i].date,
+                price: offers[i].price,
+                isActive: offers[i].isActive
+            }
+            responseArray.push(response);
+        }
         
-        return res.status(200).json({ //Si esta funcion lo requiere se deveria n hacer los populate de cada product con las varieties, sino dejar asi
-            products,
-            message: "Productos encontrados con éxito"
+        return res.status(200).json({
+            offers: responseArray,
+            message: "Ofertas encontradas con éxito"
         });
     }
     catch(error){
@@ -196,4 +234,4 @@ const getAllProducts = async (req, res) => {
     }
 }
 
-module.exports = {getOfferById, createOffer, updateOffer, deleteOffer, activate, deactivate};
+module.exports = {getOfferById, createOffer, updateOffer, deleteOffer, activate, deactivate, getAllOffers};
