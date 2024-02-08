@@ -1,6 +1,7 @@
 const offerModel = require("../models/offers.model.js");
 const validation = require("../helpers/validations.js");
 const supplierModel = require("../models/suppliers.model.js");
+const productModel = require("../models/products.model.js");
 const varietyModel = require("../models/varieties.model.js");
 const mongoose = require("mongoose");
 
@@ -131,26 +132,67 @@ const activate = async (req, res) => {
 
 const getOfferById = async (req, res) => {
     try{
-        const offer = await offerModel.getById(req.params.id).populate({
+        const offer = await offerModel.findById(req.params.id).populate({
             path: "supplierId",
-            select: ["name"] //Podría devolver mas informacion pero por ahora lo dejo asi
+            select: ["name","isActive"] //Podría devolver mas informacion pero por ahora lo dejo asi
         }).populate({
             path: "varietyId",
-            select: ["name","_id"],
-            populate: {
-                path: "_id",
-                select: ["name"],
-            }
+            select: ["name","_id","productId", "isActive"],
         });
         if(!offer) return res.status(404).json({message: "La oferta buscada no existe"});
+        
+        const product = await productModel.findById(offer.varietyId.productId);
+        
+        const response = {
+            product: {
+                name: product.name,
+                isActive: product.isActive,
+                variety: {
+                    name: offer.varietyId.name,
+                    isActive: offer.varietyId.isActive
+                }
+            },
+            supplier: {
+                name: offer.supplierId.name,
+                isActive: offer.supplierId.isActive
+            },
+            date: offer.date,
+            price: offer.price,
+            isActive: offer.isActive
+
+        }
         return res.status(200).json({
-            offer,
+            offer: response,
             message: "Oferta encontrada con éxito"
         });
     }
     catch(error){
         console.log(error);
         res.status(500).json({message: error.message});
+    }
+}
+
+const getAllProducts = async (req, res) => {
+    try{
+        const { isActive } = req.query;
+
+        let filter = {};
+
+        if(isActive) filter.isActive = undefined;
+        if(isActive?.toLowerCase() === "true") filter.isActive = true;
+        if(isActive?.toLowerCase() === "false") filter.isActive = false;
+        if(isActive?.toLowerCase() === "all") delete filter.isActive;
+
+        const products = await productModel.find(filter);
+        
+        return res.status(200).json({ //Si esta funcion lo requiere se deveria n hacer los populate de cada product con las varieties, sino dejar asi
+            products,
+            message: "Productos encontrados con éxito"
+        });
+    }
+    catch(error){
+        console.log(error);
+        res.status(500).json({ message: error.message });
     }
 }
 
