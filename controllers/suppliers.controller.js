@@ -128,17 +128,33 @@ const getSupplierById = async (req, res) => {
         
         const offers = await offerModel.find({supplierId: supplier._id}).populate({
             path: "varietyId",
-            select: ["name", "productId"],
+            select: ["name", "productId", "_id", "isActive"],
             populate: {
                 path: "productId",
-                select: ["name"]
+                select: ["name", "_id", "isActive"]
             }
-        }); //Capaz haya que cambiar algunos nombres de propiedades porque figuran como id
+        });
+        let responseArray = [];
+        for(let offer of offers){
+            let response = {
+                ...offer._doc,
+                product: {
+                    ...offer.varietyId.productId._doc,
+                    variety: {
+                        ...offer.varietyId._doc,
+                    }
+                }
+            }
+            delete response.supplierId;
+            delete response.varietyId;
+            delete response.product.variety.productId;
+            responseArray.push(response);
+        }
 
         return res.status(200).json({
             supplier: {
                 ...supplier._doc,
-                offers
+                offers: responseArray
             },
             message: "Proveedor encontrado con éxito"
         });
@@ -162,7 +178,7 @@ const getAllSuppliers = async (req, res) => {
 
         const suppliers = await supplierModel.find(filter);
         
-        return res.status(200).json({ //Si esta funcion lo requiere se deveria n hacer los pupoulate de cada supplier, sino dejar asi
+        return res.status(200).json({ //Si esta funcion lo requiere se deveria n hacer los pupulate de offer de cada supplier, sino dejar asi
             suppliers,
             message: "Proveedores encontrados con éxito"
         });

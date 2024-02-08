@@ -138,32 +138,32 @@ const getOfferById = async (req, res) => {
         }).populate({
             path: "varietyId",
             select: ["name","_id","productId", "isActive"],
+            populate: {
+                path: "productId",
+                select: ["name", "_id", "isActive"]
+            }
         });
         if(!offer) return res.status(404).json({message: "La oferta buscada no existe"});
         
         const product = await productModel.findById(offer.varietyId.productId);
         
         const response = {
-            _id: offer._id,
+            ...offer._doc,
             product: {
-                _id: product._id,
-                name: product.name,
-                isActive: product.isActive,
+                ...offer.varietyId.productId._doc,
                 variety: {
-                    _id: offer.varietyId._id,
-                    name: offer.varietyId.name,
-                    isActive: offer.varietyId.isActive
+                    ...offer.varietyId._doc,
                 }
             },
             supplier: {
-                _id: offer.supplierId._id,
-                name: offer.supplierId.name,
-                isActive: offer.supplierId.isActive
+                ...offer.supplierId._doc
             },
-            date: offer.date,
-            price: offer.price,
-            isActive: offer.isActive
         }
+
+        delete response.supplierId;
+        delete response.varietyId;
+        delete response.product.variety.productId;
+
         return res.status(200).json({
             offer: response,
             message: "Oferta encontrada con éxito"
@@ -192,34 +192,32 @@ const getAllOffers = async (req, res) => {
         }).populate({
             path: "varietyId",
             select: ["name","_id","productId", "isActive"],
+            populate: {
+                path: "productId",
+                select: ["name", "_id", "isActive"]
+            }
         });
         let responseArray = [];
 
-        for(let i = 0; i < offers.length; i++){
-
-            const product = await productModel.findById(offers[i].varietyId.productId);
+        for(let offer of offers) {
 
             const response = {
-                _id: offers[i]._id,
+                ...offer._doc,
                 product: {
-                    _id: product._id,
-                    name: product.name,
-                    isActive: product.isActive,
+                    ...offer.varietyId.productId._doc,
                     variety: {
-                        _id: offers[i].varietyId._id,
-                        name: offers[i].varietyId.name,
-                        isActive: offers[i].varietyId.isActive
+                        ...offer.varietyId._doc
                     }
                 },
                 supplier: {
-                    _id: offers[i].supplierId._id,
-                    name: offers[i].supplierId.name,
-                    isActive: offers[i].supplierId.isActive
-                },
-                date: offers[i].date,
-                price: offers[i].price,
-                isActive: offers[i].isActive
+                    ...offer.supplierId._doc
+                }
             }
+
+            delete response.supplierId;
+            delete response.varietyId;
+            delete response.product.variety.productId;
+
             responseArray.push(response);
         }
         

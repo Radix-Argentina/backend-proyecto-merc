@@ -156,9 +156,18 @@ const getAllProducts = async (req, res) => {
         if(isActive?.toLowerCase() === "all") delete filter.isActive;
 
         const products = await productModel.find(filter);
+        let responseArray = [];
+
+        for(let i = 0; i < products.length; i++) {
+            const varieties = await varietyModel.find({productId: products[i]._id});
+            responseArray.push({
+                ...products[i]._doc,
+                varieties
+            });
+        }
         
-        return res.status(200).json({ //Si esta funcion lo requiere se deveria n hacer los populate de cada product con las varieties, sino dejar asi
-            products,
+        return res.status(200).json({
+            products: responseArray,
             message: "Productos encontrados con éxito"
         });
     }

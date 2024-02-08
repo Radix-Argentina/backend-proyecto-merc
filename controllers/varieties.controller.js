@@ -123,18 +123,41 @@ const activate = async (req, res) => {
     }
 }
 
-const getVarietyById = async (req, res) => { //Posiblemente en todos estos get by id que hacen un populate o buscan info de otra tabla se deberian agregar queries para isActive
+const getVarietyById = async (req, res) => {
     try{
-        const variety = await varietyModel.findById(req.params.id)
+        const variety = await varietyModel.findById(req.params.id).populate({
+            path: "productId",
+            select: ["_id", "name", "isActive"]
+        });
         if(!variety) return res.status(404).json({ message: "La variedad no existe"});
         
-        const offers = await offerModel.find({varietyId: variety._id});
+        const offers = await offerModel.find({varietyId: variety._id}).populate({
+            path: "supplierId",
+            select: ["name","isActive","_id"]
+        });
+
+        let response = {
+            ...variety._doc,
+            product: variety.productId,
+            offers: []
+        }
+
+        delete response.productId;
+
+        for(let offer of offers) {
+            const responseOffer = {
+                ...offer._doc,
+                supplier: offer.supplierId,
+            }
+
+            delete responseOffer.varietyId;
+            delete responseOffer.supplierId;
+
+            response.offers.push(responseOffer);
+        }
 
         return res.status(200).json({
-            variety: {
-                ...variety._doc,
-                offers
-            },
+            variety: response,
             message: "Variedad encontrada con éxito"
         });
     }
