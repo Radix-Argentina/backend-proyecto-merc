@@ -77,7 +77,7 @@ const deleteProduct = async (req, res) => { //Al borrar debe estar inactivo, y n
     }
 }
 
-const deactivate = async (req, res) => { //Desactivar un provedor implica desactivar sus varieties y desactivar sus varieties implica desactivar sus  offers
+const deactivate = async (req, res) => { //Desactivar un proveedor implica desactivar sus varieties y desactivar sus varieties implica desactivar sus  offers
     //Aca se anidan 2 for para descativar todo:
     //OP1: no hacerlo y que el usuario lo haga a mano
     //OP2: hacerlo y rezar que no ocurran inconsistencias por no ser atomica (Esta esta desarrollada)
