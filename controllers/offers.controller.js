@@ -99,6 +99,36 @@ const deleteOffer = async (req, res) => { //Al borrar debe estar inactiva
     }
 }
 
+const deactivate = async (req, res) => {
+    try{
+        const offer = await offerModel.findById(req.params.id);
+        if(!offer) return res.status(404).json({ message: "La oferta no existe"});
+
+        offer.isActive = false;
+        
+        await offer.save();
+        return res.status(200).json({message: `La oferta fue desactivada`});
+    }
+    catch(error){
+        console.log(error);
+        res.status(500).json({ message: error.message });
+    }
+}
+
+const activate = async (req, res) => {
+    try{
+        const offer = await offerModel.findById(req.params.id);
+        if(!offer) return res.status(404).json({ message: "La oferta no existe"});
+        offer.isActive = true;
+        await offer.save();
+        return res.status(200).json({message: `La oferta fue activada`});
+    }
+    catch(error){
+        console.log(error);
+        res.status(500).json({ message: error.message });
+    }
+}
+
 const getOfferById = async (req, res) => {
     try{
         const offer = await offerModel.getById(req.params.id).populate({
@@ -124,4 +154,4 @@ const getOfferById = async (req, res) => {
     }
 }
 
-module.exports = {getOfferById, createOffer, updateOffer, deleteOffer};
+module.exports = {getOfferById, createOffer, updateOffer, deleteOffer, activate, deactivate};
