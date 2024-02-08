@@ -45,7 +45,7 @@ const updateProduct = async (req, res) => {
         await product.save();
 
         return res.status(200).json({
-            name,
+            product,
             message: "Producto modificado con éxito"
         });
     }

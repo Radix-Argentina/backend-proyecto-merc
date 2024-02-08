@@ -19,13 +19,11 @@ const offersSchema = new Schema({
     supplierId: {
         type: mongoose.Types.ObjectId,
         required: true,
-        immutable: true,
         ref: "suppliers"
     },
     varietyId: {
         type: mongoose.Types.ObjectId,
         required: true,
-        immutable: true,
         ref: "varieties"
     }
 },{versionKey: false, timestamps: true});
