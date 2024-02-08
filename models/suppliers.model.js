@@ -29,6 +29,12 @@ const suppliersSchema = new Schema({
         minLength: 3,
         maxLength: 100,
     },
+    contact: {
+        type: String,
+        trim: true,
+        minLength: 3,
+        maxLength: 100,
+    },
     isActive: {
         type: Boolean,
         default: true,

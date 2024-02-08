@@ -4,7 +4,7 @@ const validations = require("../helpers/validations.js");
 
 const createSupplier = async (req, res) => {
     try {
-        const { name, mail, phone, address} = req.body;
+        const { name, mail, phone, address, contact} = req.body;
 
         if(!name) return res.status(400).json({message: "El nombre es obligatorio"});
         if(!validations.validateName(name)) return res.status(400).json({message: "Nombre inválido"});
@@ -15,8 +15,10 @@ const createSupplier = async (req, res) => {
         if(typeof mail == "string" && !validations.validateMail(mail)) return res.status(400).json({message: "Correo inválido"});
         if(typeof phone == "string"  && !validations.validatePhone(phone)) return res.status(400).json({message: "Teléfono inválido"});
         if(typeof address == "string" && !validations.validateAddress(address)) return res.status(400).json({message: "Dirección inválida"});
+        if(typeof contact == "string" && !validations.validateContact(contact)) return res.status(400).json({message: "Contacto inválido"});
 
-        const newSupplier = new supplierModel({ name, mail, phone, address});
+
+        const newSupplier = new supplierModel({ name, mail, phone, address, contact});
         await newSupplier.save();
 
         return res.status(201).json({
@@ -39,6 +41,7 @@ const updateSupplier = async (req, res) => {
         if(req.body.phone) supplier.phone = req.body.phone;
         if(req.body.mail) supplier.mail = req.body.mail;
         if(req.body.address) supplier.address = req.body.address;
+        if(req.body.contact) supplier.contact = req.body.contact;
 
         const repeatedName = await supplierModel.findOne({ name: supplier.name });
         if(repeatedName && !repeatedName._id.equals(supplier._id)) return res.status(400).json({message: "Ya existe un provedor con ese nombre"});
@@ -46,6 +49,7 @@ const updateSupplier = async (req, res) => {
         if(typeof supplier.mail == "string" && !validations.validateMail(supplier.mail)) return res.status(400).json({message: "Correo inválido"});
         if(typeof supplier.phone == "string"  && !validations.validatePhone(supplier.phone)) return res.status(400).json({message: "Teléfono inválido"});
         if(typeof supplier.address == "string" && !validations.validateAddress(supplier.address)) return res.status(400).json({message: "Dirección inválida"});
+        if(typeof supplier.contact == "string" && !validations.validateContact(supplier.contact)) return res.status(400).json({message: "Contacto inválido"});
 
         await supplier.save();
 
