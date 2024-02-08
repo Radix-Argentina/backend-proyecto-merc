@@ -32,8 +32,9 @@ const validateMail = (mail) => {
     return regex.test(mail) && mail.length >= 5 && mail.length <= 100;
 }
 
-const validateDate = (date) => {
-
+const validateDate = (date) => { //Comprobar si funciona perfecto
+    const testDate = new Date(date);
+    return typeof testDate === 'object' && !isNaN(testDate);
 }
 
 const validatePrice = (price) => {
@@ -41,4 +42,4 @@ const validatePrice = (price) => {
     return typeof price === 'number' && price > 0;
 }
 
-module.exports = {validatePassword, validateUsername, validateName, validateMail, validateAddress, validatePhone, validateContact};
+module.exports = {validatePassword, validateDate, validatePrice, validateUsername, validateName, validateMail, validateAddress, validatePhone, validateContact};

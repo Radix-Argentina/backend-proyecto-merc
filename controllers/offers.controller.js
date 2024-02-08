@@ -1,22 +1,37 @@
 const offerModel = require("../models/offers.model.js");
+const validation = require("../helpers/validations.js");
+const supplierModel = require("../models/suppliers.model.js");
+const varietyModel = require("../models/varieties.model.js");
+const mongoose = require("mongoose");
 
 const createOffer = async (req, res) => {
     try {
-        const { name } = req.body;
-        if(!name) return res.status(400).json({ message: "El nombre es obligatorio"});
-        if(!validation.validateName(name)) return res.status(400).json({ message: "Nombre inválido"});
+        const { date, price, supplierId, varietyId } = req.body;
+        if(!date) return res.status(400).json({ message: "La fecha es obligatoria"});
+        if(!price) return res.status(400).json({ message: "El precio es obligatorio"});
+        if(!supplierId) return res.status(400).json({ message: "El proveedor es obligatorio"});
+        if(!varietyId) return res.status(400).json({ message: "La variedad es obligatoria"});
+        
+        if(!validation.validateDate(date)) return res.status(400).json({ message: "Fecha inválida"});
+        if(!validation.validatePrice(price)) return res.status(400).json({ message: "Precio inválido"});
+        if(!mongoose.Types.ObjectId.isValid(supplierId)) return res.status(400).json({ message: "Proveedor inválido"});
+        if(!mongoose.Types.ObjectId.isValid(varietyId)) return res.status(400).json({ message: "Variedad inválida"});
 
-        const repeatedName = await productModel.findOne({ name });
-        if(repeatedName) return res.status(400).json({message: "Ya existe un producto con ese nombre"});
+        const supplier = await supplierModel.findById(supplierId);
+        const variety = await varietyModel.findById(varietyId);
+        if(!supplier) return res.status(400).json({message: "El proveedor no existe"});
+        if(!variety) return res.status(400).json({message: "La variedad no existe"});
 
-        const product = new productModel({
-            name
+        const offer = new offerModel({
+            date,
+            price,
+            supplierId,
+            varietyId
         });
-        //Muy posiblemente cuando se cree el producto haya que crear una variedad con el, y si no se envia la informacion de la variedad, que cree una default
-        await product.save();
+        await offer.save();
         return res.status(201).json({
-            product,
-            message: "El producto fue creado con éxito"
+            offer,
+            message: "La oferta fue creada con éxito"
         });
     }
     catch(error){
@@ -50,4 +65,4 @@ const getOfferById = async (req, res) => {
     }
 }
 
-module.exports = {getOfferById};
+module.exports = {getOfferById, createOffer};
