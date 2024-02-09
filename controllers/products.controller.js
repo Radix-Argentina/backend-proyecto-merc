@@ -5,20 +5,21 @@ const validation = require("../helpers/validations.js");
 
 const createProduct = async (req, res) => {
     try {
-        const { name, varietyName } = req.body;
+        let { name, varietyName } = req.body;
         if(!name) return res.status(400).json({ message: "El nombre es obligatorio"});
         if(!validation.validateName(name)) return res.status(400).json({ message: "Nombre inválido"});
 
         const repeatedName = await productModel.findOne({ name });
         if(repeatedName) return res.status(400).json({message: "Ya existe un producto con ese nombre"});
-
+        
+        if(!varietyName) varietyName = "Común";
+        if(!validation.validateName(varietyName)) return res.status(400).json({ message: "Nombre de variedad inválido"});
+        
         const product = new productModel({
             name
         });
         await product.save();
 
-        if(!varietyName) varietyName = "Común";
-        if(!validation.validateName(varietyName)) return res.status(400).json({ message: "Nombre de variedad inválido"});
 
         const defaultVariety = new varietyModel({
             name: varietyName,
@@ -29,7 +30,7 @@ const createProduct = async (req, res) => {
 
         return res.status(201).json({
             product,
-            message: "El producto fue creado con éxito, se creo la variedad por defecto también"
+            message: `El producto fue creado con éxito, se creo la variedad ${varietyName} también`
         });
     }
     catch(error){
@@ -100,8 +101,8 @@ const deactivate = async (req, res) => { //Desactivar un proveedor implica desac
             
             const offers = await offerModel.find({varietyId: varieties[i]._id});
             for(let j = 0; j < offers.length; j++){
-                offers[i].isActive = false;
-                await offers[i].save();
+                offers[j].isActive = false;
+                await offers[j].save();
             }
 
             varieties[i].isActive = false;

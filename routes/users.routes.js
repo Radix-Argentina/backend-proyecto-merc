@@ -5,7 +5,7 @@ const {verifyAdmin, verifyUser} = require("../middlewares/permissions.js");
 const router = express.Router();
 
 router.get("/users", verifyAdmin, usersController.getAllUsers);
-router.get("/users/:id", verifyAdmin, usersController.getUserById); 
+router.get("/users/:id", verifyAdmin, usersController.getUserById); //Tal vez este sea posible para cualquier user si es uno mismo
 // buscar sin filtro  --->  http://localhost:5500/api/users
 // buscar activos  --->  http://localhost:5500/api/users?isActive=true
 // buscar inactivos  --->  http://localhost:5500/api/users?isActive=false

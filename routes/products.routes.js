@@ -1,14 +1,15 @@
 const express = require('express');
 const productController = require("../controllers/products.controller.js");
+const {verifyEditor, verifyUser} = require("../middlewares/permissions.js");
 
 const router = express.Router();
 //Falta ponerle los middlewares de permisos
-router.post("/products", productController.createProduct);
-router.put("/products/:id", productController.updateProduct);
-router.delete("/products/:id", productController.deleteProduct);
-router.put("/products/activate/:id", productController.activate);
-router.put("/products/deactivate/:id", productController.deactivate);
-router.get("/products/:id", productController.getProductById);
-router.get("/products/", productController.getAllProducts);
+router.post("/products", verifyEditor, productController.createProduct);
+router.put("/products/:id", verifyEditor, productController.updateProduct);
+router.delete("/products/:id", verifyEditor, productController.deleteProduct);
+router.put("/products/activate/:id", verifyEditor, productController.activate);
+router.put("/products/deactivate/:id", verifyEditor, productController.deactivate);
+router.get("/products/:id", verifyUser, productController.getProductById);
+router.get("/products/", verifyUser, productController.getAllProducts);
 
 module.exports = router;
