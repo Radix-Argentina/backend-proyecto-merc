@@ -5,7 +5,7 @@ const validation = require("../helpers/validations.js");
 
 const createProduct = async (req, res) => {
     try {
-        const { name } = req.body;
+        const { name, varietyName } = req.body;
         if(!name) return res.status(400).json({ message: "El nombre es obligatorio"});
         if(!validation.validateName(name)) return res.status(400).json({ message: "Nombre inválido"});
 
@@ -15,11 +15,21 @@ const createProduct = async (req, res) => {
         const product = new productModel({
             name
         });
-        //Muy posiblemente cuando se cree el producto haya que crear una variedad con el, y si no se envia la informacion de la variedad, que cree una default
         await product.save();
+
+        if(!varietyName) varietyName = "Común";
+        if(!validation.validateName(varietyName)) return res.status(400).json({ message: "Nombre de variedad inválido"});
+
+        const defaultVariety = new varietyModel({
+            name: varietyName,
+            productId: product._id
+        });
+
+        await defaultVariety.save();
+
         return res.status(201).json({
             product,
-            message: "El producto fue creado con éxito"
+            message: "El producto fue creado con éxito, se creo la variedad por defecto también"
         });
     }
     catch(error){

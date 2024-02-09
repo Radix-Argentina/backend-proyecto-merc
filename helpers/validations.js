@@ -8,7 +8,7 @@ const validatePassword = (password) => {
 }
 
 const validateName = (name) => {
-    const regex = /^[A-Za-z0-9\u00C0-\u024F_\-()\[\]']+$/; //Permite todo menos caracteres especiales y espacios, si permite guiones y parentesis
+    const regex = /^[A-Za-z0-9\u00C0-\u024F_\-()\[\] ']+$/;    //Permite todo menos caracteres especiales y espacios, si permite guiones y parentesis
     return typeof name === "string" && regex.test(name) && name.length >= 3 && name.length <= 25;
 }
 
