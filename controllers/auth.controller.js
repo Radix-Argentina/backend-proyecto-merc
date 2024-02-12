@@ -57,7 +57,8 @@ const login = async (req, res) => {
             process.env.JWT, 
         );
 
-        res.status(200).header("Authorization", `Bearer ${token}`).json({message: "Ingresó con éxito"});
+        res.status(200).header("Authorization", `Bearer ${token}`).json({message: "Ingresó con éxito",
+    token});
     }
     catch(error){
         console.log(error);
