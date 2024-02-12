@@ -157,23 +157,46 @@ const getProductById = async (req, res) => { //Aqui se devuelve el producto con 
 
 const getAllProducts = async (req, res) => {
     try{
-        const { isActive } = req.query;
+        const { activeProducts, activeVarieties, activeOffers } = req.query;
 
-        let filter = {};
+        let productsFilter = {};
+        let varietiesFilter = {};
+        let offersFilter = {};
 
-        if(isActive) filter.isActive = undefined;
-        if(isActive?.toLowerCase() === "true") filter.isActive = true;
-        if(isActive?.toLowerCase() === "false") filter.isActive = false;
-        if(isActive?.toLowerCase() === "all") delete filter.isActive;
+        if(activeProducts) productsFilter.isActive = undefined;
+        if(activeProducts?.toLowerCase() === "true") productsFilter.isActive = true;
+        if(activeProducts?.toLowerCase() === "false") productsFilter.isActive = false;
+        if(activeProducts?.toLowerCase() === "all") delete productsFilter.isActive;
 
-        const products = await productModel.find(filter);
+        
+        if(activeVarieties) varietiesFilter.isActive = undefined;
+        if(activeVarieties?.toLowerCase() === "true") varietiesFilter.isActive = true;
+        if(activeVarieties?.toLowerCase() === "false") varietiesFilter.isActive = false;
+        if(activeVarieties?.toLowerCase() === "all") delete varietiesFilter.isActive;
+
+        
+        if(activeOffers) offersFilter.isActive = undefined;
+        if(activeOffers?.toLowerCase() === "true") offersFilter.isActives = true;
+        if(activeOffers?.toLowerCase() === "false") offersFilter.isActive = false;
+        if(activeOffers?.toLowerCase() === "all") delete offersFilter.isActive;
+
+        const products = await productModel.find(productsFilter);
         let responseArray = [];
 
         for(let i = 0; i < products.length; i++) {
-            const varieties = await varietyModel.find({productId: products[i]._id});
+            const varieties = await varietyModel.find({productId: products[i]._id, ...varietiesFilter});
+            let varietiesWithOffers = [];
+            
+            for(let j = 0; j < varieties.length; j++){
+                const offers = await offerModel.find({varietyId: varieties[j]._id, ...offersFilter});
+                varietiesWithOffers.push({
+                    ...varieties[j]._doc,
+                    offers
+                })
+            } 
             responseArray.push({
                 ...products[i]._doc,
-                varieties
+                varieties: varietiesWithOffers
             });
         }
         
