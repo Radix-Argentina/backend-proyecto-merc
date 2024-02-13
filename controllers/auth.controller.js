@@ -1,7 +1,7 @@
 const userModel = require("../models/users.model.js");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
-const validation = require("../helpers/auth.validation.js");
+const validation = require("../helpers/validations.js");
 
 const register = async (req, res) => {
     try{
@@ -37,11 +37,11 @@ const login = async (req, res) => {
     try{
         const {username, password} = req.body;
 
-        if(!validation.validateUsername(username)) return res.status(400).json({message: "Nombre de usuario inválido"});
-        if(!validation.validatePassword(password)) return res.status(400).json({message: "Contraseña inválida"});
+        if(!validation.validateUsername(username)) return res.status(401).json({message: "Nombre de usuario inválido"});
+        if(!validation.validatePassword(password)) return res.status(401).json({message: "Contraseña inválida"});
 
         const user = await userModel.findOne({username: username});
-        if(!user) return res.status(400).json({message: "Usuario o contraseña incorrecta"});
+        if(!user) return res.status(401).json({message: "Usuario o contraseña incorrecta"});
         
         const isPasswordCorrect = await bcrypt.compare(
             password,
@@ -57,7 +57,8 @@ const login = async (req, res) => {
             process.env.JWT, 
         );
 
-        res.status(200).header("Authorization", `Bearer ${token}`).json({message: "Ingresó con éxito"});
+        res.status(200).header("Authorization", `Bearer ${token}`).json({message: "Ingresó con éxito",
+    token});
     }
     catch(error){
         console.log(error);

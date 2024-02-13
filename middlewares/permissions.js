@@ -6,11 +6,11 @@ const userModel = require("../models/users.model.js");
 const validateToken = async (req, res, next) => {
     try {
         const token = req.header("Authorization");
-        if(!token) return res.status(400).json({ message: "Token inválido" });
+        if(!token) return res.status(401).json({ message: "Token inválido" });
         const tokenParts = token.split(" ");
     
         if (tokenParts.length !== 2 || tokenParts[0] !== "Bearer") {
-            return res.status(400).json({ message: "Token inválido" });
+            return res.status(401).json({ message: "Token inválido" });
         }
         const jwtToken = tokenParts[1];
         const { _id } = jwt.verify(jwtToken, process.env.JWT);
