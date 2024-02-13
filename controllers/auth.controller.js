@@ -37,11 +37,11 @@ const login = async (req, res) => {
     try{
         const {username, password} = req.body;
 
-        if(!validation.validateUsername(username)) return res.status(400).json({message: "Nombre de usuario inválido"});
-        if(!validation.validatePassword(password)) return res.status(400).json({message: "Contraseña inválida"});
+        if(!validation.validateUsername(username)) return res.status(401).json({message: "Nombre de usuario inválido"});
+        if(!validation.validatePassword(password)) return res.status(401).json({message: "Contraseña inválida"});
 
         const user = await userModel.findOne({username: username});
-        if(!user) return res.status(400).json({message: "Usuario o contraseña incorrecta"});
+        if(!user) return res.status(401).json({message: "Usuario o contraseña incorrecta"});
         
         const isPasswordCorrect = await bcrypt.compare(
             password,
