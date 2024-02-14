@@ -49,67 +49,17 @@ const getAllUsers = async (req, res) => {
     }
 }
 
-const setAdminTrue = async (req, res) => {
-    try{
-        const user = await userModel.findById(req.params.id);
-        if(!user) return res.status(404).json({ message: "El usuario no existe"});
-        user.isAdmin = true;
-        await user.save();
-        return res.status(200).json({message: `${user.username} ahora es administrador`});
-    }
-    catch(error){
-        console.log(error);
-        res.status(500).json({ message: error.message });
-    }
-}
-
-const setAdminFalse = async (req, res) => {
-    try{
-        const user = await userModel.findById(req.params.id);
-        if(!user) return res.status(404).json({ message: "El usuario no existe"});
-        user.isAdmin = false;
-        await user.save();
-        return res.status(200).json({message: `${user.username} ya no es administrador`});
-    }
-    catch(error){
-        console.log(error);
-        res.status(500).json({ message: error.message });
-    }
-}
-
-const setEditorFalse = async (req, res) => {
-    try{
-        const user = await userModel.findById(req.params.id);
-        if(!user) return res.status(404).json({ message: "El usuario no existe"});
-        user.isEditor = false;
-        await user.save();
-        return res.status(200).json({message: `${user.username} ya no es editor`});
-    }
-    catch(error){
-        console.log(error);
-        res.status(500).json({ message: error.message });
-    }
-}
-
-const setEditorTrue = async (req, res) => {
-    try{
-        const user = await userModel.findById(req.params.id);
-        if(!user) return res.status(404).json({ message: "El usuario no existe"});
-        user.isEditor = true;
-        await user.save();
-        return res.status(200).json({message: `${user.username} ahora es editor`});
-    }
-    catch(error){
-        console.log(error);
-        res.status(500).json({ message: error.message });
-    }
-}
-
 const updateUserInfo = async (req, res) => {
     try{
         if(!req.user.isAdmin && req.user._id != req.params.id) return res.status(401).json({message: "No tienes autorización para modificar este usuario"});
         const user = await userModel.findById(req.params.id);
         if(user){
+            //Manejo de actualizacion de roles
+            if(req.user.isAdmin){
+                if(typeof req.body.isAdmin === "boolean") user.isAdmin = req.body.isAdmin;
+                if(typeof req.body.isEditor === "boolean") user.isEditor = req.body.isEditor;
+            }
+            //Manejo de actualizacion de nombre y de contraseña
             if(req.body?.username) user.username = req.body.username;
             if(req.body?.password) {
                 if(!req.body.oldPassword) return res.status(400).json({message: "Para cambiar la contraseña ingrese la contraseña antigua"});
@@ -126,6 +76,10 @@ const updateUserInfo = async (req, res) => {
                 user.password = hash;
             };
             if(!validation.validateUsername(req.body?.username)) return res.status(400).json({message: "Nombre de usuario inválido"});
+            
+            const repeatedUsername = await userModel.findOne({username: req.body.username});
+            if(repeatedUsername && !repeatedUsername._id.equals(user._id)) return res.status(400).json({message: "El nombre de usuario ya está en uso"});
+
             if(!validation.validatePassword(req.body?.password)) return res.status(400).json({message: "Contraseña inválida"});
 
             await user.save();
@@ -187,4 +141,4 @@ const activate = async (req, res) => {
     }
 }
 
-module.exports = {getUserById, getAllUsers, setAdminFalse, setAdminTrue, setEditorFalse, setEditorTrue, updateUserInfo, deleteUser, deactivate, activate};
+module.exports = {getUserById, getAllUsers, updateUserInfo, deleteUser, deactivate, activate};

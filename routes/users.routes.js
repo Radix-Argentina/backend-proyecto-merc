@@ -12,10 +12,6 @@ router.get("/users/:id", verifyAdmin, usersController.getUserById); //Tal vez es
 // podes buscar tambien por admin  --->  http://localhost:5500/api/users?isAdmin=true
 // o con 2 filtros  --->  http://localhost:5500/api/users?isActive=false&isAdmin=false
 // analogo para editor TAMBIEN PODES PONER "all" para que muestro tanto los true como los false
-router.put("/users/setAdminTrue/:id", verifyAdmin, usersController.setAdminTrue);
-router.put("/users/setAdminFalse/:id", verifyAdmin, usersController.setAdminFalse);
-router.put("/users/setEditorTrue/:id", verifyAdmin, usersController.setEditorTrue);
-router.put("/users/setEditorFalse/:id", verifyAdmin, usersController.setEditorFalse);
 router.put("/users/activate/:id", verifyAdmin, usersController.activate);
 router.put("/users/deactivate/:id", verifyAdmin, usersController.deactivate); //Un admin no puede desactivarse a el mismo
 router.put("/users/:id", verifyUser, usersController.updateUserInfo);
