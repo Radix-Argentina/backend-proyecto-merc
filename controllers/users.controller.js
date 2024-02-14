@@ -107,11 +107,21 @@ const setEditorTrue = async (req, res) => {
 
 const updateUserInfo = async (req, res) => {
     try{
-        if(!req.user.isAdmin && req.user._id != req.params.id) return res.status(400).json({message: "No tienes autorización para modificar este usuario"});
+        if(!req.user.isAdmin && req.user._id != req.params.id) return res.status(401).json({message: "No tienes autorización para modificar este usuario"});
         const user = await userModel.findById(req.params.id);
         if(user){
             if(req.body?.username) user.username = req.body.username;
             if(req.body?.password) {
+                if(!req.body.oldPassword) return res.status(400).json({message: "Para cambiar la contraseña ingrese la contraseña antigua"});
+                if(req.user.isAdmin){
+                    const admin = await userModel.findById(req.user._id);
+                    if(!admin) return res.status(500).json({ message: "Ha ocurrido un error inesperado, intente mas tarde" });
+                    if(!(await bcrypt.compare(req.body.oldPassword, admin.password)) && !(await bcrypt.compare(req.body.oldPassword, user.password))) return res.status(400).json({message: "Contraseña antigua incorrecta"});
+                }
+                else{
+                    if(!(await bcrypt.compare(req.body.oldPassword, user.password))) return res.status(400).json({message: "Contraseña antigua incorrecta"});
+                }
+                
                 const hash = await bcrypt.hash(req.body.password, 10)
                 user.password = hash;
             };
