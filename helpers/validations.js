@@ -22,9 +22,14 @@ const validateAddress = (address) => {
     return regex.test(address) && address.length >= 3 && address.length <= 100;
 };
 
-const validateContact = (address) => {
+const validateContact = (contact) => {
     const regex = /^[ A-Za-z\u00C0-\u024F0-9,.\:\(\)\[\]\'\"\`]+$/;
-    return regex.test(address) && address.length >= 3 && address.length <= 100;
+    return regex.test(contact) && contact.length >= 3 && contact.length <= 100;
+};
+
+const validateCountry = (country) => {
+    const regex = /^[ A-Za-z\u00C0-\u024F0-9,.\:\(\)\[\]\'\"\`]+$/;
+    return regex.test(country) && country.length >= 3 && country.length <= 100;
 };
 
 const validateMail = (mail) => {
@@ -42,4 +47,4 @@ const validatePrice = (price) => {
     return typeof price === 'number' && price > 0;
 }
 
-module.exports = {validatePassword, validateDate, validatePrice, validateUsername, validateName, validateMail, validateAddress, validatePhone, validateContact};
+module.exports = {validatePassword, validateCountry, validateDate, validatePrice, validateUsername, validateName, validateMail, validateAddress, validatePhone, validateContact};
