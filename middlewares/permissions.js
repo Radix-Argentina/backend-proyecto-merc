@@ -44,7 +44,7 @@ const verifyAdmin = async (req, res, next) => {
 const verifyEditor = async (req, res, next) => {
     try {
         await validateToken(req, res, ()=>{
-            if (req.user?.isActive && req.user.isAdmin || req.user.isEditor) {
+            if (req.user?.isActive && req.user.isAdmin || req.user?.isEditor) {
                 next();
             } else {
                 throw new Error("Acceso denegado");
