@@ -44,7 +44,7 @@ const validateTitle = (title) => {
 
 const validateText = (text) => {
     const regex = /^[ A-Za-z\u00C0-\u024F0-9,.\:\(\)\[\]\'\"\`]+$/;
-    return regex.test(text) && text.length >= 3 && text.length <= 256;
+    return regex.test(text) && text.length >= 0 && text.length <= 256;
 };
 
 const validateDate = (date) => { //Comprobar si funciona perfecto

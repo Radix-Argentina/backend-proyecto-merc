@@ -8,14 +8,16 @@ const notesSchema = new Schema({
         trim: true,
         minLength: 3,
         maxLength: 100,
+        required: true,
     },
     text: {
         type: String,
         trim: true,
-        minLength: 3,
+        minLength: 0,
         maxLength: 256,
+        default: "",
     },
-    creatorId: {
+    writerId: {
         type: mongoose.Types.ObjectId,
         required: true,
         immutable: true,

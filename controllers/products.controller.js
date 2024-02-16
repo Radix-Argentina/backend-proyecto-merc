@@ -66,7 +66,7 @@ const updateProduct = async (req, res) => {
     }
 }
 
-const deleteProduct = async (req, res) => { //Al borrar debe estar inactivo, y no puede borrarse si tiene variedades creadas
+const deleteProduct = async (req, res) => { //Al borrar debe estar inactivo, y no puede borrarse si tiene variedades creadas?? o que las borre a mano
     try {
         const product = await productModel.findById(req.params.id);
         if(!product) return res.status(404).json({message: "El producto que desea eliminar no existe"});
