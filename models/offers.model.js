@@ -16,6 +16,10 @@ const offersSchema = new Schema({
         type: Boolean,
         default: true,
     },
+    wasBought: {
+        type: Boolean,
+        default: false,
+    },
     supplierId: {
         type: mongoose.Types.ObjectId,
         required: true,
