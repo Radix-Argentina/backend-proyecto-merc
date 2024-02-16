@@ -37,6 +37,16 @@ const validateMail = (mail) => {
     return regex.test(mail) && mail.length >= 5 && mail.length <= 100;
 }
 
+const validateTitle = (title) => {
+    const regex = /^[ A-Za-z\u00C0-\u024F0-9,.\:\(\)\[\]\'\"\`]+$/;
+    return regex.test(title) && title.length >= 3 && title.length <= 100;
+};
+
+const validateText = (text) => {
+    const regex = /^[ A-Za-z\u00C0-\u024F0-9,.\:\(\)\[\]\'\"\`]+$/;
+    return regex.test(text) && text.length >= 3 && text.length <= 256;
+};
+
 const validateDate = (date) => { //Comprobar si funciona perfecto
     const testDate = new Date(date);
     return typeof testDate === 'object' && !isNaN(testDate);
@@ -47,4 +57,4 @@ const validatePrice = (price) => {
     return typeof price === 'number' && price > 0;
 }
 
-module.exports = {validatePassword, validateCountry, validateDate, validatePrice, validateUsername, validateName, validateMail, validateAddress, validatePhone, validateContact};
+module.exports = {validatePassword, validateText, validateTitle, validateCountry, validateDate, validatePrice, validateUsername, validateName, validateMail, validateAddress, validatePhone, validateContact};
