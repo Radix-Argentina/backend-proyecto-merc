@@ -4,7 +4,7 @@ const validations = require("../helpers/validations.js");
 
 const createSupplier = async (req, res) => {
     try {
-        const { name, mail, phone, address, contact} = req.body;
+        const { name, mail, phone, address, contact, country} = req.body;
 
         if(!name) return res.status(400).json({message: "El nombre es obligatorio"});
         if(!validations.validateName(name)) return res.status(400).json({message: "Nombre inválido"});
@@ -16,9 +16,10 @@ const createSupplier = async (req, res) => {
         if(typeof phone == "string"  && !validations.validatePhone(phone)) return res.status(400).json({message: "Teléfono inválido"});
         if(typeof address == "string" && !validations.validateAddress(address)) return res.status(400).json({message: "Dirección inválida"});
         if(typeof contact == "string" && !validations.validateContact(contact)) return res.status(400).json({message: "Contacto inválido"});
+        if(typeof country == "string" && !validations.validateCountry(country)) return res.status(400).json({message: "País inválido"});
 
 
-        const newSupplier = new supplierModel({ name, mail, phone, address, contact});
+        const newSupplier = new supplierModel({ name, mail, phone, address, contact, country});
         await newSupplier.save();
 
         return res.status(201).json({
@@ -42,6 +43,7 @@ const updateSupplier = async (req, res) => {
         if(req.body.mail) supplier.mail = req.body.mail;
         if(req.body.address) supplier.address = req.body.address;
         if(req.body.contact) supplier.contact = req.body.contact;
+        if(req.body.country) supplier.country = req.body.country;
 
         const repeatedName = await supplierModel.findOne({ name: supplier.name });
         if(repeatedName && !repeatedName._id.equals(supplier._id)) return res.status(400).json({message: "Ya existe un proveedor con ese nombre"});
@@ -50,6 +52,7 @@ const updateSupplier = async (req, res) => {
         if(typeof supplier.phone == "string"  && !validations.validatePhone(supplier.phone)) return res.status(400).json({message: "Teléfono inválido"});
         if(typeof supplier.address == "string" && !validations.validateAddress(supplier.address)) return res.status(400).json({message: "Dirección inválida"});
         if(typeof supplier.contact == "string" && !validations.validateContact(supplier.contact)) return res.status(400).json({message: "Contacto inválido"});
+        if(typeof supplier.country == "string" && !validations.validateCountry(supplier.country)) return res.status(400).json({message: "País inválido"});
 
         await supplier.save();
 
@@ -64,20 +67,18 @@ const updateSupplier = async (req, res) => {
     }
 }
 
-const deleteSupplier = async (req, res) => { //Al borrar debe estar inactivo, y no puede borrarse si tiene offers creadas
+const deleteSupplier = async (req, res) => {
     try{
         const supplier = await supplierModel.findById(req.params.id);
         if(!supplier) return res.status(404).json({message: "El proveedor que desea eliminar no existe"});
         if(supplier.isActive) return res.status(400).json({message: "Solo puede eliminar proveedores inactivos"});
         
-        const offers = await offerModel.find({supplierId: supplier._id});
-        
-        if(offers.length > 0) return res.status(400).json({message: "No se puede eliminar un proveedor con ofertas creadas"});
+        await offerModel.deleteMany({supplierId: supplier._id});
 
         await supplierModel.findByIdAndDelete(req.params.id);
         return res.status(200).json({
             supplier,
-            message: "El proveedor fue eliminado con éxito",
+            message: "El proveedor y sus ofertas fueron eliminados con éxito",
         });
     }
     catch(error){
@@ -91,7 +92,7 @@ const deactivate = async (req, res) => { //Desactivar un proveedor implica desac
         const supplier = await supplierModel.findById(req.params.id);
         if(!supplier) return res.status(404).json({ message: "El proveedor no existe"});
         
-        const offers = await offerModel.find({supplierId: supplier._id}); //Probar si desactiva todas las  
+        const offers = await offerModel.find({supplierId: supplier._id});
         for(let i = 0; i < offers.length; i++){
             offers[i].isActive = false;
             await offers[i].save();
@@ -178,7 +179,7 @@ const getAllSuppliers = async (req, res) => {
 
         const suppliers = await supplierModel.find(filter);
         
-        return res.status(200).json({ //Si esta funcion lo requiere se deveria n hacer los pupulate de offer de cada supplier, sino dejar asi
+        return res.status(200).json({
             suppliers,
             message: "Proveedores encontrados con éxito"
         });

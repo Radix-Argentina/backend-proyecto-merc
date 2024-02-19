@@ -7,7 +7,7 @@ const mongoose = require("mongoose");
 
 const createOffer = async (req, res) => {
     try {
-        const { date, price, supplierId, varietyId } = req.body;
+        const { date, price, supplierId, varietyId, wasBought } = req.body;
         if(!date) return res.status(400).json({ message: "La fecha es obligatoria"});
         if(!price) return res.status(400).json({ message: "El precio es obligatorio"});
         if(!supplierId) return res.status(400).json({ message: "El proveedor es obligatorio"});
@@ -17,6 +17,7 @@ const createOffer = async (req, res) => {
         if(!validation.validatePrice(price)) return res.status(400).json({ message: "Precio inválido"});
         if(!mongoose.Types.ObjectId.isValid(supplierId)) return res.status(400).json({ message: "Proveedor inválido"});
         if(!mongoose.Types.ObjectId.isValid(varietyId)) return res.status(400).json({ message: "Variedad inválida"});
+        if((wasBought !== undefined) && typeof wasBought !== "boolean") return res.status(400).json({ message: "Información de compra inválida"});
 
         const supplier = await supplierModel.findById(supplierId);
         const variety = await varietyModel.findById(varietyId);
@@ -27,7 +28,8 @@ const createOffer = async (req, res) => {
             date,
             price,
             supplierId,
-            varietyId
+            varietyId,
+            wasBought
         });
         await offer.save();
         return res.status(201).json({
@@ -43,18 +45,21 @@ const createOffer = async (req, res) => {
 
 const updateOffer = async (req, res) => {
     try{
-        const { date, price, supplierId, varietyId } = req.body;
+        const { date, price, supplierId, varietyId, wasBought } = req.body;
         const offer = await offerModel.findById(req.params.id);
 
         if(!offer) return res.status(404).json({ message: "No se encontró la oferta buscada"});
 
         if(date) offer.date = date;
         if(price) offer.price = price;
+        if(wasBought !== undefined) offer.wasBought = wasBought;
         
         if(date && !validation.validateDate(offer.date)) return res.status(400).json({ message: "Fecha inválida"});
         if(price && !validation.validatePrice(offer.price)) return res.status(400).json({ message: "Precio inválido"});
         if(supplierId && !mongoose.Types.ObjectId.isValid(supplierId)) return res.status(400).json({ message: "Proveedor inválido"});
         if(varietyId && !mongoose.Types.ObjectId.isValid(varietyId)) return res.status(400).json({ message: "Variedad inválida"});
+        if((wasBought !== undefined) && typeof wasBought !== "boolean") return res.status(400).json({ message: "Información de compra inválida"});
+
 
         if(supplierId && mongoose.Types.ObjectId.isValid(supplierId)){
             const supplier = await supplierModel.findById(supplierId);

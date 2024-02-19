@@ -22,15 +22,30 @@ const validateAddress = (address) => {
     return regex.test(address) && address.length >= 3 && address.length <= 100;
 };
 
-const validateContact = (address) => {
+const validateContact = (contact) => {
     const regex = /^[ A-Za-z\u00C0-\u024F0-9,.\:\(\)\[\]\'\"\`]+$/;
-    return regex.test(address) && address.length >= 3 && address.length <= 100;
+    return regex.test(contact) && contact.length >= 3 && contact.length <= 100;
+};
+
+const validateCountry = (country) => {
+    const regex = /^[ A-Za-z\u00C0-\u024F0-9,.\:\(\)\[\]\'\"\`]+$/;
+    return regex.test(country) && country.length >= 3 && country.length <= 100;
 };
 
 const validateMail = (mail) => {
     const regex = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$/;
     return regex.test(mail) && mail.length >= 5 && mail.length <= 100;
 }
+
+const validateTitle = (title) => {
+    const regex = /^[ A-Za-z\u00C0-\u024F0-9,.\:\(\)\[\]\'\"\`]+$/;
+    return regex.test(title) && title.length >= 3 && title.length <= 100;
+};
+
+const validateText = (text) => {
+    const regex = /^[ A-Za-z\u00C0-\u024F0-9,.\:\(\)\[\]\'\"\`]+$/;
+    return regex.test(text) && text.length >= 0 && text.length <= 256;
+};
 
 const validateDate = (date) => { //Comprobar si funciona perfecto
     const testDate = new Date(date);
@@ -42,4 +57,4 @@ const validatePrice = (price) => {
     return typeof price === 'number' && price > 0;
 }
 
-module.exports = {validatePassword, validateDate, validatePrice, validateUsername, validateName, validateMail, validateAddress, validatePhone, validateContact};
+module.exports = {validatePassword, validateText, validateTitle, validateCountry, validateDate, validatePrice, validateUsername, validateName, validateMail, validateAddress, validatePhone, validateContact};
