@@ -67,20 +67,18 @@ const updateSupplier = async (req, res) => {
     }
 }
 
-const deleteSupplier = async (req, res) => { //Al borrar debe estar inactivo, y no puede borrarse si tiene offers creadas
+const deleteSupplier = async (req, res) => {
     try{
         const supplier = await supplierModel.findById(req.params.id);
         if(!supplier) return res.status(404).json({message: "El proveedor que desea eliminar no existe"});
         if(supplier.isActive) return res.status(400).json({message: "Solo puede eliminar proveedores inactivos"});
         
-        const offers = await offerModel.find({supplierId: supplier._id});
-        
-        if(offers.length > 0) return res.status(400).json({message: "No se puede eliminar un proveedor con ofertas creadas"});
+        await offerModel.deleteMany({supplierId: supplier._id});
 
         await supplierModel.findByIdAndDelete(req.params.id);
         return res.status(200).json({
             supplier,
-            message: "El proveedor fue eliminado con éxito",
+            message: "El proveedor y sus ofertas fueron eliminados con éxito",
         });
     }
     catch(error){

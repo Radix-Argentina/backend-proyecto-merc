@@ -74,12 +74,15 @@ const deleteProduct = async (req, res) => { //Al borrar debe estar inactivo, y n
         
         const varieties = await varietyModel.find({productId: product._id});
         
-        if(varieties.length > 0) return res.status(400).json({message: "No se puede eliminar un producto con variedades creadas"});
+        for(let variety of varieties){
+            await offerModel.deleteMany({varietyId: variety._id});
+        }
+        await varietyModel.deleteMany({productId: product._id});
 
         await productModel.findByIdAndDelete(req.params.id);
         return res.status(200).json({
             product,
-            message: "El producto fue eliminado con éxito",
+            message: "El producto fue eliminado con éxito junto a sus variedades y ofertas",
         });
     }
     catch (error) {
