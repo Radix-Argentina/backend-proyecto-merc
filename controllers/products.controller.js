@@ -3,6 +3,12 @@ const varietyModel = require("../models/varieties.model.js");
 const offerModel = require("../models/offers.model.js");
 const validation = require("../helpers/validations.js");
 
+
+/*
+
+--------------NOT ACID METHOD--------------
+
+*/
 const createProduct = async (req, res) => {
     try {
         let { name, varietyName } = req.body;
@@ -39,7 +45,7 @@ const createProduct = async (req, res) => {
     }
 }
 
-const updateProduct = async (req, res) => {
+const updateProduct = async (req, res) => { //ACID
     try{
         const { name } = req.body;
         const product = await productModel.findById(req.params.id);
@@ -66,6 +72,12 @@ const updateProduct = async (req, res) => {
     }
 }
 
+
+/*
+
+--------------NOT ACID METHOD--------------
+
+*/
 const deleteProduct = async (req, res) => { //Al borrar debe estar inactivo, y no puede borrarse si tiene variedades creadas?? o que las borre a mano
     try {
         const product = await productModel.findById(req.params.id);
@@ -91,10 +103,14 @@ const deleteProduct = async (req, res) => { //Al borrar debe estar inactivo, y n
     }
 }
 
+
+/*
+
+--------------NOT ACID METHOD--------------
+
+*/
 const deactivate = async (req, res) => { //Desactivar un proveedor implica desactivar sus varieties y desactivar sus varieties implica desactivar sus  offers
     //Aca se anidan 2 for para descativar todo:
-    //OP1: no hacerlo y que el usuario lo haga a mano
-    //OP2: hacerlo y rezar que no ocurran inconsistencias por no ser atomica (Esta esta desarrollada)
     try{
         const product = await productModel.findById(req.params.id);
         if(!product) return res.status(404).json({ message: "El producto no existe"});
@@ -122,7 +138,7 @@ const deactivate = async (req, res) => { //Desactivar un proveedor implica desac
     }
 }
 
-const activate = async (req, res) => {
+const activate = async (req, res) => { //ACID
     try{
         const product = await productModel.findById(req.params.id);
         if(!product) return res.status(404).json({ message: "El producto no existe"});
@@ -136,7 +152,8 @@ const activate = async (req, res) => {
     }
 }
 
-const getProductById = async (req, res) => { //Aqui se devuelve el producto con sus variedades, pero capaz sea funcional que devuelva a su vez las variedades con las offers
+const getProductById = async (req, res) => { //ACID
+    //Aqui se devuelve el producto con sus variedades, pero capaz sea funcional que devuelva a su vez las variedades con las offers
     //Si no se lo requiere en el front conviene que mande solo las variedades asi no manda de más
     try{
         const product = await productModel.findById(req.params.id)
@@ -158,7 +175,7 @@ const getProductById = async (req, res) => { //Aqui se devuelve el producto con 
     }
 }
 
-const getAllProducts = async (req, res) => {
+const getAllProducts = async (req, res) => { //ACID
     try{
         const { activeProducts, activeVarieties, activeOffers } = req.query;
 

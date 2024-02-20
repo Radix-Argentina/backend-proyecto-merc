@@ -4,7 +4,7 @@ const offerModel = require("../models/offers.model.js");
 const validation = require("../helpers/validations.js");
 const mongoose = require("mongoose");
 
-const createVariety = async (req, res) => {
+const createVariety = async (req, res) => { //ACID
     try {
         const { name, productId } = req.body;
         
@@ -37,7 +37,7 @@ const createVariety = async (req, res) => {
     }
 }
 
-const updateVariety = async (req, res) => {
+const updateVariety = async (req, res) => { //ACID
     try{
         const { name } = req.body;
         const variety = await varietyModel.findById(req.params.id);
@@ -64,6 +64,12 @@ const updateVariety = async (req, res) => {
     }
 }
 
+/*
+
+--------------NOT ACID METHOD--------------
+
+*/
+
 const deleteVariety = async (req, res) => { //Al borrar debe estar inactivo, y no puede borrarse si tiene offers creadas
     try {
         const variety = await varietyModel.findById(req.params.id);
@@ -83,6 +89,12 @@ const deleteVariety = async (req, res) => { //Al borrar debe estar inactivo, y n
         res.status(500).json({message: error.message});
     }
 }
+
+/*
+
+--------------NOT ACID METHOD--------------
+
+*/
 
 const deactivate = async (req, res) => { //Desactivar una variedad implica desactivar sus offers
     try{
@@ -107,7 +119,7 @@ const deactivate = async (req, res) => { //Desactivar una variedad implica desac
     }
 }
 
-const activate = async (req, res) => {
+const activate = async (req, res) => { //ACID
     try{
         const variety = await varietyModel.findById(req.params.id);
         if(!variety) return res.status(404).json({ message: "La variedad no existe"});
@@ -121,7 +133,7 @@ const activate = async (req, res) => {
     }
 }
 
-const getVarietyById = async (req, res) => {
+const getVarietyById = async (req, res) => { //ACID
     try{
         const variety = await varietyModel.findById(req.params.id).populate({
             path: "productId",
@@ -165,7 +177,7 @@ const getVarietyById = async (req, res) => {
     }
 }
 
-const getAllVarieties = async (req, res) => {
+const getAllVarieties = async (req, res) => { //ACID
     try{
         const { isActive } = req.query;
 

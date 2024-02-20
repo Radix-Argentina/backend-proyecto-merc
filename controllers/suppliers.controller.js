@@ -2,7 +2,7 @@ const supplierModel = require("../models/suppliers.model.js");
 const offerModel = require("../models/offers.model.js");
 const validations = require("../helpers/validations.js");
 
-const createSupplier = async (req, res) => {
+const createSupplier = async (req, res) => { //ACID
     try {
         const { name, mail, phone, address, contact, country} = req.body;
 
@@ -33,7 +33,7 @@ const createSupplier = async (req, res) => {
     }
 }
 
-const updateSupplier = async (req, res) => {
+const updateSupplier = async (req, res) => { //ACID
     try {
         const supplier = await supplierModel.findById(req.params.id);
         if(!supplier) return res.status(404).json({message: "El proveedor que desea modificar no existe"});
@@ -66,7 +66,11 @@ const updateSupplier = async (req, res) => {
         res.status(500).json({message: error.message});
     }
 }
+/*
 
+--------------NOT ACID METHOD--------------
+
+*/
 const deleteSupplier = async (req, res) => {
     try{
         const supplier = await supplierModel.findById(req.params.id);
@@ -86,6 +90,12 @@ const deleteSupplier = async (req, res) => {
         res.status(500).json({message: error.message});
     }
 }
+
+/*
+
+--------------NOT ACID METHOD--------------
+
+*/
 
 const deactivate = async (req, res) => { //Desactivar un proveedor implica desactivar sus offers
     try{
@@ -108,7 +118,7 @@ const deactivate = async (req, res) => { //Desactivar un proveedor implica desac
     }
 }
 
-const activate = async (req, res) => {
+const activate = async (req, res) => { //ACID
     try{
         const supplier = await supplierModel.findById(req.params.id);
         if(!supplier) return res.status(404).json({ message: "El proveedor no existe"});
@@ -122,7 +132,7 @@ const activate = async (req, res) => {
     }
 }
 
-const getSupplierById = async (req, res) => {
+const getSupplierById = async (req, res) => { //ACID
     try{
         const supplier = await supplierModel.findById(req.params.id)
         if(!supplier) return res.status(404).json({ message: "El proveedor no existe"});
@@ -166,7 +176,7 @@ const getSupplierById = async (req, res) => {
     }
 }
 
-const getAllSuppliers = async (req, res) => {
+const getAllSuppliers = async (req, res) => { //ACID
     try{
         const { isActive } = req.query;
 

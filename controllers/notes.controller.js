@@ -1,7 +1,7 @@
 const notesModel = require("../models/notes.model.js");
 const validation = require("../helpers/validations.js");
 
-const createNote = async (req, res) => {
+const createNote = async (req, res) => { //ACID
     try {
         const { title, text } = req.body;
         if(!title) return res.status(400).json({ message: "El título es obligatorio"});
@@ -29,7 +29,8 @@ const createNote = async (req, res) => {
     }
 }
 
-const updateNote = async (req, res) => { //Una nota puede ser editada por cualquier persona editor o admin??, o solo por el autor??
+const updateNote = async (req, res) => { //ACID
+    //Una nota puede ser editada por cualquier persona editor o admin??, o solo por el autor??
     try {
         const { title, text } = req.body;
         const note = await notesModel.findById(req.params.id);
@@ -54,7 +55,8 @@ const updateNote = async (req, res) => { //Una nota puede ser editada por cualqu
     }
 }
 
-const deleteNote = async (req, res) => { //Cualquiera puede borrar cualquier nota?
+const deleteNote = async (req, res) => { //ACID
+    //Cualquiera puede borrar cualquier nota?
     try {
         const note = await notesModel.findById(req.params.id);
         if(!note) return res.status(404).json({message: "La nota que desea eliminar no existe"});
@@ -72,7 +74,8 @@ const deleteNote = async (req, res) => { //Cualquiera puede borrar cualquier not
     }
 }
 
-const getAllNotes = async (req, res) => { //Tal vez quieran agregar algun tipo de filtro aqui
+const getAllNotes = async (req, res) => { //ACID
+    //Tal vez quieran agregar algun tipo de filtro aqui
     try{
         const notes = await notesModel.find().populate({
             path: "writerId",
@@ -102,7 +105,7 @@ const getAllNotes = async (req, res) => { //Tal vez quieran agregar algun tipo d
     }
 }
 
-const getNoteById = async (req, res) => {
+const getNoteById = async (req, res) => { //ACID
     try{
         const note = await notesModel.findById(req.params.id).populate({
             path: "writerId",

@@ -3,7 +3,7 @@ const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const validation = require("../helpers/validations.js");
 
-const register = async (req, res) => {
+const register = async (req, res) => { //ACID
     try{
         const {username, password, isAdmin, isEditor} = req.body;
         
@@ -33,7 +33,7 @@ const register = async (req, res) => {
     }
 }
 
-const login = async (req, res) => {
+const login = async (req, res) => { //ACID
     try{
         const {username, password} = req.body;
 
