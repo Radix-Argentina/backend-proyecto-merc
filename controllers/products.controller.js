@@ -2,29 +2,44 @@ const productModel = require("../models/products.model.js");
 const varietyModel = require("../models/varieties.model.js");
 const offerModel = require("../models/offers.model.js");
 const validation = require("../helpers/validations.js");
+const mongoose = require("mongoose");
 
 
-/*
-
---------------NOT ACID METHOD--------------
-
-*/
-const createProduct = async (req, res) => {
+const createProduct = async (req, res) => { //ACID
+    const session = await mongoose.startSession(); // Inicia una sesión de transacción
+    session.startTransaction(); // Inicia la transacción
     try {
         let { name, varietyName } = req.body;
-        if(!name) return res.status(400).json({ message: "El nombre es obligatorio"});
-        if(!validation.validateName(name)) return res.status(400).json({ message: "Nombre inválido"});
-
-        const repeatedName = await productModel.findOne({ name });
-        if(repeatedName) return res.status(400).json({message: "Ya existe un producto con ese nombre"});
+        if(!name){
+            await session.abortTransaction(); // Rollback
+            session.endSession(); // Finaliza la sesión de transacción
+            return res.status(400).json({ message: "El nombre es obligatorio"});
+        }
+        if(!validation.validateName(name)){
+            await session.abortTransaction(); // Rollback
+            session.endSession(); // Finaliza la sesión de transacción
+            return res.status(400).json({ message: "Nombre inválido"});
+        }
+        
+        const repeatedName = await productModel.findOne({ name }).session(session);
+        if(repeatedName){
+            await session.abortTransaction(); // Rollback
+            session.endSession(); // Finaliza la sesión de transacción
+            return res.status(400).json({message: "Ya existe un producto con ese nombre"});
+        }
         
         if(!varietyName) varietyName = "Común";
-        if(!validation.validateName(varietyName)) return res.status(400).json({ message: "Nombre de variedad inválido"});
+        if(!validation.validateName(varietyName)){
+            await session.abortTransaction(); // Rollback
+            session.endSession(); // Finaliza la sesión de transacción
+            return res.status(400).json({ message: "Nombre de variedad inválido"});
+        }
         
+
         const product = new productModel({
             name
         });
-        await product.save();
+        await product.save({session}); // Guarda el producto dentro de la sesión de transacción
 
 
         const defaultVariety = new varietyModel({
@@ -32,7 +47,10 @@ const createProduct = async (req, res) => {
             productId: product._id
         });
 
-        await defaultVariety.save();
+        await defaultVariety.save({session}); // Guarda la variedad dentro de la sesión de transacción
+
+        await session.commitTransaction(); // Confirma la transacción
+        session.endSession(); // Finaliza la sesión de transacción
 
         return res.status(201).json({
             product,
@@ -40,6 +58,10 @@ const createProduct = async (req, res) => {
         });
     }
     catch(error){
+
+        await session.abortTransaction(); // Rollback en caso de error
+        session.endSession(); // Finaliza la sesión de transacción
+
         console.log(error);
         res.status(500).json({message: error.message});
     }
@@ -73,66 +95,86 @@ const updateProduct = async (req, res) => { //ACID
 }
 
 
-/*
-
---------------NOT ACID METHOD--------------
-
-*/
-const deleteProduct = async (req, res) => { //Al borrar debe estar inactivo, y no puede borrarse si tiene variedades creadas?? o que las borre a mano
+const deleteProduct = async (req, res) => { //ACID
+    //Al borrar debe estar inactivo, y no puede borrarse si tiene variedades creadas?? o que las borre a mano
+    const session = await mongoose.startSession(); // Inicia una sesión de transacción
+    session.startTransaction(); // Inicia la transacción
     try {
-        const product = await productModel.findById(req.params.id);
-        if(!product) return res.status(404).json({message: "El producto que desea eliminar no existe"});
-        if(product.isActive) return res.status(400).json({message: "Solo puede eliminar productos inactivos"});
+        const product = await productModel.findById(req.params.id).session(session);
+        if(!product){
+            await session.abortTransaction(); // Rollback
+            session.endSession(); // Finaliza la sesión de transacción
+            return res.status(404).json({message: "El producto que desea eliminar no existe"});
+        }
+        if(product.isActive){
+            await session.abortTransaction(); // Rollback
+            session.endSession(); // Finaliza la sesión de transacción
+            return res.status(400).json({message: "Solo puede eliminar productos inactivos"});
+        }
         
-        const varieties = await varietyModel.find({productId: product._id});
+        const varieties = await varietyModel.find({productId: product._id}).session(session);
         
         for(let variety of varieties){
-            await offerModel.deleteMany({varietyId: variety._id});
+            await offerModel.deleteMany({varietyId: variety._id}).session(session);
         }
-        await varietyModel.deleteMany({productId: product._id});
+        await varietyModel.deleteMany({productId: product._id}).session(session);
 
-        await productModel.findByIdAndDelete(req.params.id);
+        await productModel.findByIdAndDelete(req.params.id).session(session);
+
+        await session.commitTransaction(); // Confirma la transacción
+        session.endSession(); // Finaliza la sesión de transacción
+
         return res.status(200).json({
             product,
             message: "El producto fue eliminado con éxito junto a sus variedades y ofertas",
         });
     }
     catch (error) {
+        
+        await session.abortTransaction(); // Rollback en caso de error
+        session.endSession(); // Finaliza la sesión de transacción
+        
         console.log(error);
         res.status(500).json({message: error.message});
     }
 }
 
-
-/*
-
---------------NOT ACID METHOD--------------
-
-*/
-const deactivate = async (req, res) => { //Desactivar un proveedor implica desactivar sus varieties y desactivar sus varieties implica desactivar sus  offers
+const deactivate = async (req, res) => { //ACID
+    //Desactivar un proveedor implica desactivar sus varieties y desactivar sus varieties implica desactivar sus  offers
     //Aca se anidan 2 for para descativar todo:
+    const session = await mongoose.startSession(); // Inicia una sesión de transacción
+    session.startTransaction(); // Inicia la transacción
     try{
-        const product = await productModel.findById(req.params.id);
-        if(!product) return res.status(404).json({ message: "El producto no existe"});
+        const product = await productModel.findById(req.params.id).session(session);
+        if(!product){
+            await session.abortTransaction(); // Rollback
+            session.endSession(); // Finaliza la sesión de transacción
+            return res.status(404).json({ message: "El producto no existe"})
+        };
         
-        const varieties = await varietyModel.find({productId: product._id}); //Probar si desactiva todas las variedades
+        const varieties = await varietyModel.find({productId: product._id}).session(session); //Probar si desactiva todas las variedades
         for(let i = 0; i < varieties.length; i++){
             
-            const offers = await offerModel.find({varietyId: varieties[i]._id});
+            const offers = await offerModel.find({varietyId: varieties[i]._id}).session(session);
             for(let j = 0; j < offers.length; j++){
                 offers[j].isActive = false;
-                await offers[j].save();
+                await offers[j].save({session});
             }
 
             varieties[i].isActive = false;
-            await varieties[i].save();
+            await varieties[i].save({session});
         }
         product.isActive = false;
         
-        await product.save();
+        await product.save({session});
+
+        await session.commitTransaction(); // Confirma la transacción
+        session.endSession(); // Finaliza la sesión de transacción
         return res.status(200).json({message: `El producto ${product.name} fue desactivado`});
     }
     catch(error){
+        await session.abortTransaction(); // Rollback en caso de error
+        session.endSession(); // Finaliza la sesión de transacción
         console.log(error);
         res.status(500).json({ message: error.message });
     }
