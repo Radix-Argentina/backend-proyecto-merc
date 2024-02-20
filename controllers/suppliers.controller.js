@@ -66,53 +66,69 @@ const updateSupplier = async (req, res) => { //ACID
         res.status(500).json({message: error.message});
     }
 }
-/*
 
---------------NOT ACID METHOD--------------
-
-*/
-const deleteSupplier = async (req, res) => {
+const deleteSupplier = async (req, res) => { //ACID
+    const session = await mongoose.startSession(); // Inicia una sesión de transacción
+    session.startTransaction(); // Inicia la transacción
     try{
-        const supplier = await supplierModel.findById(req.params.id);
-        if(!supplier) return res.status(404).json({message: "El proveedor que desea eliminar no existe"});
-        if(supplier.isActive) return res.status(400).json({message: "Solo puede eliminar proveedores inactivos"});
+        const supplier = await supplierModel.findById(req.params.id).session(session);
+        if(!supplier){
+            await session.abortTransaction(); // Rollback
+            session.endSession(); // Finaliza la sesión de transacción
+            return res.status(404).json({message: "El proveedor que desea eliminar no existe"});
+        }
+        if(supplier.isActive){
+            await session.abortTransaction(); // Rollback
+            session.endSession(); // Finaliza la sesión de transacción
+            return res.status(400).json({message: "Solo puede eliminar proveedores inactivos"});
+        }
         
-        await offerModel.deleteMany({supplierId: supplier._id});
+        await offerModel.deleteMany({supplierId: supplier._id}).session(session);
 
-        await supplierModel.findByIdAndDelete(req.params.id);
+        await supplierModel.findByIdAndDelete(req.params.id).session(session);
+        await session.commitTransaction(); // Confirma la transacción
+        session.endSession(); // Finaliza la sesión de transacción
         return res.status(200).json({
             supplier,
             message: "El proveedor y sus ofertas fueron eliminados con éxito",
         });
     }
     catch(error){
+        await session.abortTransaction(); // Rollback en caso de error
+        session.endSession(); // Finaliza la sesión de transacción
         console.log(error);
         res.status(500).json({message: error.message});
     }
 }
 
-/*
-
---------------NOT ACID METHOD--------------
-
-*/
-
-const deactivate = async (req, res) => { //Desactivar un proveedor implica desactivar sus offers
+const deactivate = async (req, res) => { //ACID
+    //Desactivar un proveedor implica desactivar sus offers
+    const session = await mongoose.startSession(); // Inicia una sesión de transacción
+    session.startTransaction(); // Inicia la transacción
     try{
-        const supplier = await supplierModel.findById(req.params.id);
-        if(!supplier) return res.status(404).json({ message: "El proveedor no existe"});
+        const supplier = await supplierModel.findById(req.params.id).session(session);
+        if(!supplier){
+            await session.abortTransaction(); // Rollback
+            session.endSession(); // Finaliza la sesión de transacción
+            return res.status(404).json({ message: "El proveedor no existe"});
+        }
         
-        const offers = await offerModel.find({supplierId: supplier._id});
+        const offers = await offerModel.find({supplierId: supplier._id}).session(session);
         for(let i = 0; i < offers.length; i++){
             offers[i].isActive = false;
-            await offers[i].save();
+            await offers[i].save({session});
         }
         supplier.isActive = false;
         
-        await supplier.save();
+        await supplier.save({session});
+
+        await session.commitTransaction(); // Confirma la transacción
+        session.endSession(); // Finaliza la sesión de transacción
         return res.status(200).json({message: `El proveedor ${supplier.name} fue desactivado`});
     }
     catch(error){
+        await session.abortTransaction(); // Rollback en caso de error
+        session.endSession(); // Finaliza la sesión de transacción
         console.log(error);
         res.status(500).json({ message: error.message });
     }
