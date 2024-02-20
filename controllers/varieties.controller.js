@@ -64,56 +64,71 @@ const updateVariety = async (req, res) => { //ACID
     }
 }
 
-/*
-
---------------NOT ACID METHOD--------------
-
-*/
-
-const deleteVariety = async (req, res) => { //Al borrar debe estar inactivo, y no puede borrarse si tiene offers creadas
+const deleteVariety = async (req, res) => { //ACID
+    //Al borrar debe estar inactivo, y no puede borrarse si tiene offers creadas
+    const session = await mongoose.startSession(); // Inicia una sesión de transacción
+    session.startTransaction(); // Inicia la transacción
     try {
-        const variety = await varietyModel.findById(req.params.id);
-        if(!variety) return res.status(404).json({message: "La variedad que desea eliminar no existe"});
-        if(variety.isActive) return res.status(400).json({message: "Solo puede eliminar variedades inactivas"});
+        const variety = await varietyModel.findById(req.params.id).session(session);
+        if(!variety){
+            await session.abortTransaction(); // Rollback
+            session.endSession(); // Finaliza la sesión de transacción
+            return res.status(404).json({message: "La variedad que desea eliminar no existe"});
+        }
+        if(variety.isActive){
+            await session.abortTransaction(); // Rollback
+            session.endSession(); // Finaliza la sesión de transacción
+            return res.status(400).json({message: "Solo puede eliminar variedades inactivas"});
+        }
         
-        await offerModel.deleteMany({varietyId: variety._id});
+        await offerModel.deleteMany({varietyId: variety._id}).session(session);
 
-        await varietyModel.findByIdAndDelete(req.params.id);
+        await varietyModel.findByIdAndDelete(req.params.id).session(session);
+
+        await session.commitTransaction(); // Confirma la transacción
+        session.endSession(); // Finaliza la sesión de transacción
         return res.status(200).json({
             variety,
             message: "La variedad y sus ofertas fueron eliminadas con éxito",
         });
     }
     catch (error) {
+        await session.abortTransaction(); // Rollback en caso de error
+        session.endSession(); // Finaliza la sesión de transacción
         console.log(error);
         res.status(500).json({message: error.message});
     }
 }
 
-/*
-
---------------NOT ACID METHOD--------------
-
-*/
-
-const deactivate = async (req, res) => { //Desactivar una variedad implica desactivar sus offers
+const deactivate = async (req, res) => { //ACID
+    //Desactivar una variedad implica desactivar sus offers
+    const session = await mongoose.startSession(); // Inicia una sesión de transacción
+    session.startTransaction(); // Inicia la transacción
     try{
-        const variety = await varietyModel.findById(req.params.id);
-        if(!variety) return res.status(404).json({ message: "La variedad no existe"});
+        const variety = await varietyModel.findById(req.params.id).session(session);
+        if(!variety){
+            await session.abortTransaction(); // Rollback
+            session.endSession(); // Finaliza la sesión de transacción
+            return res.status(404).json({ message: "La variedad no existe"});
+        }
         
-        const offers = await offerModel.find({varietyId: variety._id}); //Probar si desactiva todas las offers
+        const offers = await offerModel.find({varietyId: variety._id}).session(session); //Probar si desactiva todas las offers
         for(let i = 0; i < offers.length; i++){
 
             offers[i].isActive = false;
-            await offers[i].save();
+            await offers[i].save({session});
 
         }
         variety.isActive = false;
         
-        await variety.save();
+        await variety.save({session});
+        await session.commitTransaction(); // Confirma la transacción
+        session.endSession(); // Finaliza la sesión de transacción
         return res.status(200).json({message: `La variedad ${variety.name} fue desactivada`});
     }
     catch(error){
+        await session.abortTransaction(); // Rollback en caso de error
+        session.endSession(); // Finaliza la sesión de transacción
         console.log(error);
         res.status(500).json({ message: error.message });
     }
