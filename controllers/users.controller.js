@@ -16,7 +16,7 @@ const getUserById = async (req, res) => {
     }
 }
 
-const getAllUsers = async (req, res) => {
+const getAllUsers = async (req, res) => { //ACID
     try{
         const { isActive, isAdmin, isEditor } = req.query;
 
@@ -49,7 +49,7 @@ const getAllUsers = async (req, res) => {
     }
 }
 
-const updateUserInfo = async (req, res) => {
+const updateUserInfo = async (req, res) => { //ACID
     try{
         if(!req.user.isAdmin && req.user._id != req.params.id) return res.status(401).json({message: "No tienes autorización para modificar este usuario"});
         const user = await userModel.findById(req.params.id);
@@ -95,7 +95,8 @@ const updateUserInfo = async (req, res) => {
     }
 }
 
-const deleteUser = async (req, res) => { //Solo se puede eliminar completamente un usuario desactivado
+const deleteUser = async (req, res) => { //ACID
+    //Solo se puede eliminar un usuario desactivado
 	try {
         if(req.user._id == req.params.id) return res.status(400).json({message: "No puedes eliminarte a ti mismo"});
         const user = await userModel.findById(req.params.id);
@@ -112,7 +113,7 @@ const deleteUser = async (req, res) => { //Solo se puede eliminar completamente 
 	}
 }
 
-const deactivate = async (req, res) => {
+const deactivate = async (req, res) => { //ACID
     try{
         if(req.user._id == req.params.id) return res.status(400).json({message: "No puedes desactivarte a ti mismo"});
         const user = await userModel.findById(req.params.id);
@@ -127,7 +128,7 @@ const deactivate = async (req, res) => {
     }
 }
 
-const activate = async (req, res) => {
+const activate = async (req, res) => { //ACID
     try{
         const user = await userModel.findById(req.params.id);
         if(!user) return res.status(404).json({ message: "El usuario no existe"});

@@ -5,7 +5,7 @@ const productModel = require("../models/products.model.js");
 const varietyModel = require("../models/varieties.model.js");
 const mongoose = require("mongoose");
 
-const createOffer = async (req, res) => {
+const createOffer = async (req, res) => { //ACID
     try {
         const { date, price, supplierId, varietyId, wasBought } = req.body;
         if(!date) return res.status(400).json({ message: "La fecha es obligatoria"});
@@ -43,7 +43,7 @@ const createOffer = async (req, res) => {
     }
 }
 
-const updateOffer = async (req, res) => {
+const updateOffer = async (req, res) => { //ACID
     try{
         const { date, price, supplierId, varietyId, wasBought } = req.body;
         const offer = await offerModel.findById(req.params.id);
@@ -86,7 +86,8 @@ const updateOffer = async (req, res) => {
     }
 }
 
-const deleteOffer = async (req, res) => { //Al borrar debe estar inactiva
+const deleteOffer = async (req, res) => { //ACID
+    //Al borrar debe estar inactiva
     try {
         const offer = await offerModel.findById(req.params.id);
         if(!offer) return res.status(404).json({message: "La oferta que desea eliminar no existe"});
@@ -105,7 +106,7 @@ const deleteOffer = async (req, res) => { //Al borrar debe estar inactiva
     }
 }
 
-const deactivate = async (req, res) => {
+const deactivate = async (req, res) => { //ACID
     try{
         const offer = await offerModel.findById(req.params.id);
         if(!offer) return res.status(404).json({ message: "La oferta no existe"});
@@ -121,7 +122,7 @@ const deactivate = async (req, res) => {
     }
 }
 
-const activate = async (req, res) => {
+const activate = async (req, res) => { //ACID
     try{
         const offer = await offerModel.findById(req.params.id);
         if(!offer) return res.status(404).json({ message: "La oferta no existe"});
@@ -135,7 +136,7 @@ const activate = async (req, res) => {
     }
 }
 
-const getOfferById = async (req, res) => {
+const getOfferById = async (req, res) => { //ACID
     try{
         const offer = await offerModel.findById(req.params.id).populate({
             path: "supplierId",
@@ -180,7 +181,7 @@ const getOfferById = async (req, res) => {
     }
 }
 
-const getAllOffers = async (req, res) => {
+const getAllOffers = async (req, res) => { //ACID
     try{
         const { isActive } = req.query;
 
