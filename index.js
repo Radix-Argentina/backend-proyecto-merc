@@ -20,6 +20,7 @@ app.use(cors());
 app.use(express.json());
 app.disable('x-powered-by');
 
+
 // Directorio publico
 
 app.use(express.static("public"));
@@ -34,7 +35,6 @@ app.use("/api", offersRoute);
 app.use("/api", notesRoute);
 
 // Escucha del servidor
-
 (async () => await connectDB())();
 
 app.listen(port, () =>{
