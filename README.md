@@ -13,4 +13,4 @@
 *   [Diego Isaias Vaca Paz](https://github.com/orgs/Radix-Argentina/people/diegovacapaz)
 *   [Agustin Rubén Baza](https://github.com/orgs/Radix-Argentina/people/agustinbaza) (SM)
 *   [Marcos Isaías Padrós](https://github.com/orgs/Radix-Argentina/people/IsaiasPadros)
-*   [Máximo Majorel](https://github.com/maximajorel)
+*   [Máximo Majorel](https://github.com/maximajorel) (PM)
