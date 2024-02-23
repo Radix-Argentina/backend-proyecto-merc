@@ -1,7 +1,8 @@
 const notesModel = require("../models/notes.model.js");
 const validation = require("../helpers/validations.js");
 
-const createNote = async (req, res) => { //ACID
+//Crear una nota
+const createNote = async (req, res) => {
     try {
         const { title, text } = req.body;
         if(!title) return res.status(400).json({ message: "El título es obligatorio"});
@@ -24,13 +25,12 @@ const createNote = async (req, res) => { //ACID
         });
     }
     catch(error){
-        console.log(error);
         res.status(500).json({message: error.message});
     }
 }
 
-const updateNote = async (req, res) => { //ACID
-    //Una nota puede ser editada por cualquier persona editor o admin??, o solo por el autor??
+//Modificar una nota
+const updateNote = async (req, res) => {
     try {
         const { title, text } = req.body;
         const note = await notesModel.findById(req.params.id);
@@ -50,13 +50,12 @@ const updateNote = async (req, res) => { //ACID
         });
     }
     catch(error){
-        console.log(error);
         res.status(500).json({message: error.message});
     }
 }
 
-const deleteNote = async (req, res) => { //ACID
-    //Cualquiera puede borrar cualquier nota?
+//Eliminar una nota
+const deleteNote = async (req, res) => {
     try {
         const note = await notesModel.findById(req.params.id);
         if(!note) return res.status(404).json({message: "La nota que desea eliminar no existe"});
@@ -69,13 +68,12 @@ const deleteNote = async (req, res) => { //ACID
         });
     }
     catch (error) {
-        console.log(error);
         res.status(500).json({message: error.message});
     }
 }
 
-const getAllNotes = async (req, res) => { //ACID
-    //Tal vez quieran agregar algun tipo de filtro aqui
+//Buscar una nota por id
+const getAllNotes = async (req, res) => {
     try{
         const notes = await notesModel.find().populate({
             path: "writerId",
@@ -100,12 +98,12 @@ const getAllNotes = async (req, res) => { //ACID
 
     }
     catch (error) {
-        console.log(error);
         res.status(500).json({message: error.message});
     }
 }
 
-const getNoteById = async (req, res) => { //ACID
+//Buscar notas
+const getNoteById = async (req, res) => {
     try{
         const note = await notesModel.findById(req.params.id).populate({
             path: "writerId",
@@ -126,7 +124,6 @@ const getNoteById = async (req, res) => { //ACID
         });
     }
     catch(error){
-        console.log(error);
         res.status(500).json({ message: error.message });
     }
 }

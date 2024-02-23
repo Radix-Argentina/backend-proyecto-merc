@@ -2,6 +2,7 @@ const userModel = require("../models/users.model.js");
 const bcrypt = require("bcrypt");
 const validation = require("../helpers/validations.js");
 
+//Buscar usuario por id
 const getUserById = async (req, res) => {
     try{
         const user = await userModel.findById(req.params.id);
@@ -11,12 +12,12 @@ const getUserById = async (req, res) => {
         });
     }
     catch(error){
-        console.log(error);
         res.status(500).json({ message: error.message });
     }
 }
 
-const getAllUsers = async (req, res) => { //ACID
+//Buscar usuarios por filtros
+const getAllUsers = async (req, res) => {
     try{
         const { isActive, isAdmin, isEditor } = req.query;
 
@@ -44,22 +45,20 @@ const getAllUsers = async (req, res) => { //ACID
         });
     }
     catch(error){
-        console.log(error);
         res.status(500).json({ message: error.message });
     }
 }
 
-const updateUserInfo = async (req, res) => { //ACID
+//Modificar un usuario
+const updateUserInfo = async (req, res) => {
     try{
         if(!req.user.isAdmin && req.user._id != req.params.id) return res.status(401).json({message: "No tienes autorización para modificar este usuario"});
         const user = await userModel.findById(req.params.id);
         if(user){
-            //Manejo de actualizacion de roles
             if(req.user.isAdmin){
                 if(typeof req.body.isAdmin === "boolean") user.isAdmin = req.body.isAdmin;
                 if(typeof req.body.isEditor === "boolean") user.isEditor = req.body.isEditor;
             }
-            //Manejo de actualizacion de nombre y de contraseña
             if(req.body?.username) user.username = req.body.username;
             if(req.body?.password) {
                 if(!req.body.oldPassword) return res.status(400).json({message: "Para cambiar la contraseña ingrese la contraseña antigua"});
@@ -90,13 +89,12 @@ const updateUserInfo = async (req, res) => { //ACID
         }
     }
     catch(error){
-        console.log(error);
         res.status(500).json({ message: error.message });
     }
 }
 
-const deleteUser = async (req, res) => { //ACID
-    //Solo se puede eliminar un usuario desactivado
+//Eliminar un usuario
+const deleteUser = async (req, res) => {
 	try {
         if(req.user._id == req.params.id) return res.status(400).json({message: "No puedes eliminarte a ti mismo"});
         const user = await userModel.findById(req.params.id);
@@ -108,12 +106,12 @@ const deleteUser = async (req, res) => { //ACID
             return res.status(200).json({message: "El usuario se eliminó con éxito"});
         }
 	} catch (error) {
-		console.log(error);
         res.status(500).json({ message: error.message });
 	}
 }
 
-const deactivate = async (req, res) => { //ACID
+//Desactivar un usuario
+const deactivate = async (req, res) => {
     try{
         if(req.user._id == req.params.id) return res.status(400).json({message: "No puedes desactivarte a ti mismo"});
         const user = await userModel.findById(req.params.id);
@@ -123,12 +121,12 @@ const deactivate = async (req, res) => { //ACID
         return res.status(200).json({message: `${user.username} fue desactivado`});
     }
     catch(error){
-        console.log(error);
         res.status(500).json({ message: error.message });
     }
 }
 
-const activate = async (req, res) => { //ACID
+//Activar un usuario
+const activate = async (req, res) => {
     try{
         const user = await userModel.findById(req.params.id);
         if(!user) return res.status(404).json({ message: "El usuario no existe"});
@@ -137,7 +135,6 @@ const activate = async (req, res) => { //ACID
         return res.status(200).json({message: `${user.username} fue activado`});
     }
     catch(error){
-        console.log(error);
         res.status(500).json({ message: error.message });
     }
 }

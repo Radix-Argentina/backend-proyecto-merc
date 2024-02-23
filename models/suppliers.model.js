@@ -18,7 +18,7 @@ const suppliersSchema = new Schema({
         maxLength: 100,
     },
     phone: {
-        type: String, //Lo guardamos como string para incluir signos que puedan estar en el numero de telefono
+        type: String,
         trim: true,
         minLenght: 7,
         maxLenght: 16,
