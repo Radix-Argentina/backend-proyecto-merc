@@ -1,6 +1,7 @@
 const supplierModel = require("../models/suppliers.model.js");
 const offerModel = require("../models/offers.model.js");
 const validations = require("../helpers/validations.js");
+const mongoose = require("mongoose");
 
 const createSupplier = async (req, res) => { //ACID
     try {
