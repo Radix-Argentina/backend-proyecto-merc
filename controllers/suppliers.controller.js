@@ -1,8 +1,10 @@
 const supplierModel = require("../models/suppliers.model.js");
 const offerModel = require("../models/offers.model.js");
 const validations = require("../helpers/validations.js");
+const mongoose = require("mongoose");
 
-const createSupplier = async (req, res) => { //ACID
+//Crear un nuevo proveedor
+const createSupplier = async (req, res) => {
     try {
         const { name, mail, phone, address, contact, country} = req.body;
 
@@ -28,12 +30,12 @@ const createSupplier = async (req, res) => { //ACID
         });
     }
     catch(error) {
-        console.log(error);
         res.status(500).json({message: error.message});
     }
 }
 
-const updateSupplier = async (req, res) => { //ACID
+//Modificar un proveedor
+const updateSupplier = async (req, res) => {
     try {
         const supplier = await supplierModel.findById(req.params.id);
         if(!supplier) return res.status(404).json({message: "El proveedor que desea modificar no existe"});
@@ -62,54 +64,53 @@ const updateSupplier = async (req, res) => { //ACID
         });
     }
     catch(error) {
-        console.log(error);
         res.status(500).json({message: error.message});
     }
 }
 
-const deleteSupplier = async (req, res) => { //ACID
-    const session = await mongoose.startSession(); // Inicia una sesión de transacción
-    session.startTransaction(); // Inicia la transacción
+//Eliminar un proveedor y sus ofertas
+const deleteSupplier = async (req, res) => {
+    const session = await mongoose.startSession();
+    session.startTransaction();
     try{
         const supplier = await supplierModel.findById(req.params.id).session(session);
         if(!supplier){
-            await session.abortTransaction(); // Rollback
-            session.endSession(); // Finaliza la sesión de transacción
+            await session.abortTransaction();
+            session.endSession();
             return res.status(404).json({message: "El proveedor que desea eliminar no existe"});
         }
         if(supplier.isActive){
-            await session.abortTransaction(); // Rollback
-            session.endSession(); // Finaliza la sesión de transacción
+            await session.abortTransaction();
+            session.endSession();
             return res.status(400).json({message: "Solo puede eliminar proveedores inactivos"});
         }
         
         await offerModel.deleteMany({supplierId: supplier._id}).session(session);
 
         await supplierModel.findByIdAndDelete(req.params.id).session(session);
-        await session.commitTransaction(); // Confirma la transacción
-        session.endSession(); // Finaliza la sesión de transacción
+        await session.commitTransaction();
+        session.endSession();
         return res.status(200).json({
             supplier,
             message: "El proveedor y sus ofertas fueron eliminados con éxito",
         });
     }
     catch(error){
-        await session.abortTransaction(); // Rollback en caso de error
-        session.endSession(); // Finaliza la sesión de transacción
-        console.log(error);
+        await session.abortTransaction();
+        session.endSession();
         res.status(500).json({message: error.message});
     }
 }
 
-const deactivate = async (req, res) => { //ACID
-    //Desactivar un proveedor implica desactivar sus offers
-    const session = await mongoose.startSession(); // Inicia una sesión de transacción
-    session.startTransaction(); // Inicia la transacción
+//Desactivar un proveedor y sus ofertas
+const deactivate = async (req, res) => {
+    const session = await mongoose.startSession();
+    session.startTransaction();
     try{
         const supplier = await supplierModel.findById(req.params.id).session(session);
         if(!supplier){
-            await session.abortTransaction(); // Rollback
-            session.endSession(); // Finaliza la sesión de transacción
+            await session.abortTransaction();
+            session.endSession();
             return res.status(404).json({ message: "El proveedor no existe"});
         }
         
@@ -122,19 +123,19 @@ const deactivate = async (req, res) => { //ACID
         
         await supplier.save({session});
 
-        await session.commitTransaction(); // Confirma la transacción
-        session.endSession(); // Finaliza la sesión de transacción
+        await session.commitTransaction();
+        session.endSession();
         return res.status(200).json({message: `El proveedor ${supplier.name} fue desactivado`});
     }
     catch(error){
-        await session.abortTransaction(); // Rollback en caso de error
-        session.endSession(); // Finaliza la sesión de transacción
-        console.log(error);
+        await session.abortTransaction();
+        session.endSession();
         res.status(500).json({ message: error.message });
     }
 }
 
-const activate = async (req, res) => { //ACID
+//Activar un proveedor
+const activate = async (req, res) => {
     try{
         const supplier = await supplierModel.findById(req.params.id);
         if(!supplier) return res.status(404).json({ message: "El proveedor no existe"});
@@ -143,12 +144,12 @@ const activate = async (req, res) => { //ACID
         return res.status(200).json({message: `El proveedor ${supplier.name} fue activado`});
     }
     catch(error){
-        console.log(error);
         res.status(500).json({ message: error.message });
     }
 }
 
-const getSupplierById = async (req, res) => { //ACID
+//Buscar un proveedor por id
+const getSupplierById = async (req, res) => {
     try{
         const supplier = await supplierModel.findById(req.params.id)
         if(!supplier) return res.status(404).json({ message: "El proveedor no existe"});
@@ -187,12 +188,12 @@ const getSupplierById = async (req, res) => { //ACID
         });
     }
     catch(error){
-        console.log(error);
         res.status(500).json({ message: error.message });
     }
 }
 
-const getAllSuppliers = async (req, res) => { //ACID
+//Buscar proveedores por filtros
+const getAllSuppliers = async (req, res) => {
     try{
         const { isActive } = req.query;
 
@@ -211,7 +212,6 @@ const getAllSuppliers = async (req, res) => { //ACID
         });
     }
     catch(error){
-        console.log(error);
         res.status(500).json({ message: error.message });
     }
 }

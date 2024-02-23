@@ -4,7 +4,8 @@ const offerModel = require("../models/offers.model.js");
 const validation = require("../helpers/validations.js");
 const mongoose = require("mongoose");
 
-const createVariety = async (req, res) => { //ACID
+//Crear una nueva variedad
+const createVariety = async (req, res) => {
     try {
         const { name, productId } = req.body;
         
@@ -32,12 +33,12 @@ const createVariety = async (req, res) => { //ACID
         });
     }
     catch(error){
-        console.log(error);
         res.status(500).json({message: error.message});
     }
 }
 
-const updateVariety = async (req, res) => { //ACID
+//Modificar una variedad existente
+const updateVariety = async (req, res) => {
     try{
         const { name } = req.body;
         const variety = await varietyModel.findById(req.params.id);
@@ -59,25 +60,24 @@ const updateVariety = async (req, res) => { //ACID
         });
     }
     catch(error){
-        console.log(error);
         res.status(500).json({message: error.message});
     }
 }
 
-const deleteVariety = async (req, res) => { //ACID
-    //Al borrar debe estar inactivo, y no puede borrarse si tiene offers creadas
-    const session = await mongoose.startSession(); // Inicia una sesión de transacción
-    session.startTransaction(); // Inicia la transacción
+//Eliminar variedad y sus ofertas
+const deleteVariety = async (req, res) => {
+    const session = await mongoose.startSession();
+    session.startTransaction();
     try {
         const variety = await varietyModel.findById(req.params.id).session(session);
         if(!variety){
-            await session.abortTransaction(); // Rollback
-            session.endSession(); // Finaliza la sesión de transacción
+            await session.abortTransaction();
+            session.endSession();
             return res.status(404).json({message: "La variedad que desea eliminar no existe"});
         }
         if(variety.isActive){
-            await session.abortTransaction(); // Rollback
-            session.endSession(); // Finaliza la sesión de transacción
+            await session.abortTransaction();
+            session.endSession();
             return res.status(400).json({message: "Solo puede eliminar variedades inactivas"});
         }
         
@@ -85,34 +85,33 @@ const deleteVariety = async (req, res) => { //ACID
 
         await varietyModel.findByIdAndDelete(req.params.id).session(session);
 
-        await session.commitTransaction(); // Confirma la transacción
-        session.endSession(); // Finaliza la sesión de transacción
+        await session.commitTransaction();
+        session.endSession();
         return res.status(200).json({
             variety,
             message: "La variedad y sus ofertas fueron eliminadas con éxito",
         });
     }
     catch (error) {
-        await session.abortTransaction(); // Rollback en caso de error
-        session.endSession(); // Finaliza la sesión de transacción
-        console.log(error);
+        await session.abortTransaction();
+        session.endSession();
         res.status(500).json({message: error.message});
     }
 }
 
-const deactivate = async (req, res) => { //ACID
-    //Desactivar una variedad implica desactivar sus offers
-    const session = await mongoose.startSession(); // Inicia una sesión de transacción
-    session.startTransaction(); // Inicia la transacción
+//Desactivar variedad y sus ofertas
+const deactivate = async (req, res) => {
+    const session = await mongoose.startSession();
+    session.startTransaction();
     try{
         const variety = await varietyModel.findById(req.params.id).session(session);
         if(!variety){
-            await session.abortTransaction(); // Rollback
-            session.endSession(); // Finaliza la sesión de transacción
+            await session.abortTransaction();
+            session.endSession();
             return res.status(404).json({ message: "La variedad no existe"});
         }
         
-        const offers = await offerModel.find({varietyId: variety._id}).session(session); //Probar si desactiva todas las offers
+        const offers = await offerModel.find({varietyId: variety._id}).session(session);
         for(let i = 0; i < offers.length; i++){
 
             offers[i].isActive = false;
@@ -122,19 +121,19 @@ const deactivate = async (req, res) => { //ACID
         variety.isActive = false;
         
         await variety.save({session});
-        await session.commitTransaction(); // Confirma la transacción
-        session.endSession(); // Finaliza la sesión de transacción
+        await session.commitTransaction();
+        session.endSession();
         return res.status(200).json({message: `La variedad ${variety.name} fue desactivada`});
     }
     catch(error){
-        await session.abortTransaction(); // Rollback en caso de error
-        session.endSession(); // Finaliza la sesión de transacción
-        console.log(error);
+        await session.abortTransaction();
+        session.endSession();
         res.status(500).json({ message: error.message });
     }
 }
 
-const activate = async (req, res) => { //ACID
+//Activar variedad
+const activate = async (req, res) => {
     try{
         const variety = await varietyModel.findById(req.params.id);
         if(!variety) return res.status(404).json({ message: "La variedad no existe"});
@@ -143,12 +142,12 @@ const activate = async (req, res) => { //ACID
         return res.status(200).json({message: `La variedad ${variety.name} fue activada`});
     }
     catch(error){
-        console.log(error);
         res.status(500).json({ message: error.message });
     }
 }
 
-const getVarietyById = async (req, res) => { //ACID
+//Buscar variedad por id
+const getVarietyById = async (req, res) => {
     try{
         const variety = await varietyModel.findById(req.params.id).populate({
             path: "productId",
@@ -187,12 +186,12 @@ const getVarietyById = async (req, res) => { //ACID
         });
     }
     catch(error){
-        console.log(error);
         res.status(500).json({ message: error.message });
     }
 }
 
-const getAllVarieties = async (req, res) => { //ACID
+//Buscar todas las variedades por filtros
+const getAllVarieties = async (req, res) => {
     try{
         const { isActive } = req.query;
 
@@ -208,13 +207,12 @@ const getAllVarieties = async (req, res) => { //ACID
             select: ["name", "isActive"],
         });
 
-        return res.status(200).json({ //Si esta funcion lo requiere se deverian hacer los populate de cada variety con las offers, sino dejar asi
+        return res.status(200).json({
             varieties,
             message: "Variedades encontradas con éxito"
         });
     }
     catch(error){
-        console.log(error);
         res.status(500).json({ message: error.message });
     }
 }

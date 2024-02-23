@@ -5,7 +5,8 @@ const productModel = require("../models/products.model.js");
 const varietyModel = require("../models/varieties.model.js");
 const mongoose = require("mongoose");
 
-const createOffer = async (req, res) => { //ACID
+//Crear una nueva oferta
+const createOffer = async (req, res) => {
     try {
         const { date, price, supplierId, varietyId, wasBought } = req.body;
         if(!date) return res.status(400).json({ message: "La fecha es obligatoria"});
@@ -38,12 +39,12 @@ const createOffer = async (req, res) => { //ACID
         });
     }
     catch(error){
-        console.log(error);
         res.status(500).json({message: error.message});
     }
 }
 
-const updateOffer = async (req, res) => { //ACID
+//Modificar una oferta
+const updateOffer = async (req, res) => {
     try{
         const { date, price, supplierId, varietyId, wasBought } = req.body;
         const offer = await offerModel.findById(req.params.id);
@@ -81,13 +82,12 @@ const updateOffer = async (req, res) => { //ACID
         });
     }
     catch(error){
-        console.log(error);
         res.status(500).json({message: error.message});
     }
 }
 
-const deleteOffer = async (req, res) => { //ACID
-    //Al borrar debe estar inactiva
+//Eliminar una oferta
+const deleteOffer = async (req, res) => {
     try {
         const offer = await offerModel.findById(req.params.id);
         if(!offer) return res.status(404).json({message: "La oferta que desea eliminar no existe"});
@@ -101,12 +101,12 @@ const deleteOffer = async (req, res) => { //ACID
         });
     }
     catch (error) {
-        console.log(error);
         res.status(500).json({message: error.message});
     }
 }
 
-const deactivate = async (req, res) => { //ACID
+//Desactivar una oferta
+const deactivate = async (req, res) => {
     try{
         const offer = await offerModel.findById(req.params.id);
         if(!offer) return res.status(404).json({ message: "La oferta no existe"});
@@ -117,12 +117,12 @@ const deactivate = async (req, res) => { //ACID
         return res.status(200).json({message: `La oferta fue desactivada`});
     }
     catch(error){
-        console.log(error);
         res.status(500).json({ message: error.message });
     }
 }
 
-const activate = async (req, res) => { //ACID
+//Activar una oferta
+const activate = async (req, res) => {
     try{
         const offer = await offerModel.findById(req.params.id);
         if(!offer) return res.status(404).json({ message: "La oferta no existe"});
@@ -131,12 +131,12 @@ const activate = async (req, res) => { //ACID
         return res.status(200).json({message: `La oferta fue activada`});
     }
     catch(error){
-        console.log(error);
         res.status(500).json({ message: error.message });
     }
 }
 
-const getOfferById = async (req, res) => { //ACID
+//Buscar oferta por id
+const getOfferById = async (req, res) => {
     try{
         const offer = await offerModel.findById(req.params.id).populate({
             path: "supplierId",
@@ -176,12 +176,12 @@ const getOfferById = async (req, res) => { //ACID
         });
     }
     catch(error){
-        console.log(error);
         res.status(500).json({message: error.message});
     }
 }
 
-const getAllOffers = async (req, res) => { //ACID
+//Buscar ofertas por filtros
+const getAllOffers = async (req, res) => {
     try{
         const { isActive } = req.query;
 
@@ -233,7 +233,6 @@ const getAllOffers = async (req, res) => { //ACID
         });
     }
     catch(error){
-        console.log(error);
         res.status(500).json({ message: error.message });
     }
 }
