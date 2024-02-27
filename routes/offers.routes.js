@@ -7,18 +7,18 @@ const router = express.Router();
 //RUTAS
 
 //Buscar una oferta por id
-router.get("/offers/:id", verifyUser, offersController.getOfferById);
+router.get("/offers/:id",  offersController.getOfferById);
 //Buscar ofertas
-router.get("/offers/", verifyUser, offersController.getAllOffers);
+router.get("/offers/", offersController.getAllOffers);
 //Crear oferta
-router.post("/offers/", verifyEditor, offersController.createOffer);
+router.post("/offers/",  offersController.createOffer);
 //Modificar oferta
-router.put("/offers/:id", verifyEditor, offersController.updateOffer);
+router.put("/offers/:id",  offersController.updateOffer);
 //Eliminar ofertas
-router.delete("/offers/:id", verifyEditor, offersController.deleteOffer);
+router.delete("/offers/:id",  offersController.deleteOffer);
 //Activar oferta
-router.put("/offers/activate/:id", verifyEditor, offersController.activate);
+router.put("/offers/activate/:id",  offersController.activate);
 //Desactivar oferta
-router.put("/offers/deactivate/:id", verifyEditor, offersController.deactivate);
+router.put("/offers/deactivate/:id",  offersController.deactivate);
 
 module.exports = router;

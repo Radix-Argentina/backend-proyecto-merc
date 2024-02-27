@@ -7,18 +7,18 @@ const router = express.Router();
 //RUTAS
 
 //Crear un producto
-router.post("/products", verifyEditor, productController.createProduct);
+router.post("/products", productController.createProduct);
 //Modificar producto
-router.put("/products/:id", verifyEditor, productController.updateProduct);
+router.put("/products/:id",  productController.updateProduct);
 //Eliminar producto
-router.delete("/products/:id", verifyEditor, productController.deleteProduct);
+router.delete("/products/:id",  productController.deleteProduct);
 //Activar producto
-router.put("/products/activate/:id", verifyEditor, productController.activate);
+router.put("/products/activate/:id",  productController.activate);
 //Desactivar producto
-router.put("/products/deactivate/:id", verifyEditor, productController.deactivate);
+router.put("/products/deactivate/:id",  productController.deactivate);
 //Buscar oferta por id
-router.get("/products/:id", verifyUser, productController.getProductById);
+router.get("/products/:id",  productController.getProductById);
 //Buscar todos los productos
-router.get("/products/", verifyUser, productController.getAllProducts);
+router.get("/products/",  productController.getAllProducts);
 
 module.exports = router;

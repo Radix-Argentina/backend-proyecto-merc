@@ -7,7 +7,7 @@ const router = express.Router();
 //RUTAS
 
 //Registro
-router.post("/register", verifyAdmin, authController.register);
+router.post("/register",  authController.register);
 //Iniciar Sesión
 router.post("/login", authController.login);
 

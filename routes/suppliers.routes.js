@@ -7,18 +7,18 @@ const router = express.Router();
 //RUTAS
 
 //Crear proveedor
-router.post("/suppliers", verifyEditor, suppliersController.createSupplier);
+router.post("/suppliers",  suppliersController.createSupplier);
 //Modificar proveedor
-router.put("/suppliers/:id", verifyEditor, suppliersController.updateSupplier);
+router.put("/suppliers/:id",  suppliersController.updateSupplier);
 //Eliminar proveedor
-router.delete("/suppliers/:id", verifyEditor, suppliersController.deleteSupplier);
+router.delete("/suppliers/:id",  suppliersController.deleteSupplier);
 //Activar proveedor
-router.put("/suppliers/activate/:id", verifyEditor, suppliersController.activate);
+router.put("/suppliers/activate/:id",  suppliersController.activate);
 //Descartivar proveedor
-router.put("/suppliers/deactivate/:id", verifyEditor, suppliersController.deactivate);
+router.put("/suppliers/deactivate/:id",  suppliersController.deactivate);
 //Buscar proveedor por id
-router.get("/suppliers/:id", verifyUser, suppliersController.getSupplierById);
+router.get("/suppliers/:id",  suppliersController.getSupplierById);
 //Buscar todos proveedores
-router.get("/suppliers", verifyUser, suppliersController.getAllSuppliers);
+router.get("/suppliers",  suppliersController.getAllSuppliers);
 
 module.exports = router;

@@ -7,16 +7,16 @@ const router = express.Router();
 //RUTAS
 
 //Buscar todos los usuarios
-router.get("/users", verifyAdmin, usersController.getAllUsers);
+router.get("/users",  usersController.getAllUsers);
 //Buscar usuario por id
-router.get("/users/:id", verifyAdmin, usersController.getUserById);
+router.get("/users/:id",  usersController.getUserById);
 //Activar usuario
-router.put("/users/activate/:id", verifyAdmin, usersController.activate);
+router.put("/users/activate/:id",  usersController.activate);
 //Desactivar usuario
-router.put("/users/deactivate/:id", verifyAdmin, usersController.deactivate);
+router.put("/users/deactivate/:id",  usersController.deactivate);
 //Modificar usuario
-router.put("/users/:id", verifyUser, usersController.updateUserInfo);
+router.put("/users/:id",  usersController.updateUserInfo);
 //Eliminar usuario
-router.delete("/users/:id", verifyAdmin, usersController.deleteUser);
+router.delete("/users/:id",  usersController.deleteUser);
 
 module.exports = router;

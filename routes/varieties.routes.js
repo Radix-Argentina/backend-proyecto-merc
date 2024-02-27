@@ -7,18 +7,18 @@ const router = express.Router();
 //RUTAS
 
 //Crear variedad
-router.post("/varieties/", verifyEditor, varietyController.createVariety);
+router.post("/varieties/",  varietyController.createVariety);
 //Modificar variedad
-router.put("/varieties/:id", verifyEditor, varietyController.updateVariety);
+router.put("/varieties/:id",  varietyController.updateVariety);
 //Eliminar variedad
-router.delete("/varieties/:id", verifyEditor, varietyController.deleteVariety);
+router.delete("/varieties/:id",  varietyController.deleteVariety);
 //Activar variedad
-router.put("/varieties/activate/:id", verifyEditor, varietyController.activate);
+router.put("/varieties/activate/:id",  varietyController.activate);
 //Desactivar variedad
-router.put("/varieties/deactivate/:id", verifyEditor, varietyController.deactivate);
+router.put("/varieties/deactivate/:id",  varietyController.deactivate);
 //Buscar variedad por id
-router.get("/varieties/:id", verifyUser, varietyController.getVarietyById);
+router.get("/varieties/:id",  varietyController.getVarietyById);
 //Buscar todas las variedad
-router.get("/varieties/", verifyUser, varietyController.getAllVarieties);
+router.get("/varieties/",  varietyController.getAllVarieties);
 
 module.exports = router;
