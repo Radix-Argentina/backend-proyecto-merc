@@ -3,7 +3,8 @@ const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const validation = require("../helpers/validations.js");
 
-const register = async (req, res) => { //ACID
+//Registrar un nuevo usuario
+const register = async (req, res) => {
     try{
         const {username, password, isAdmin, isEditor} = req.body;
         
@@ -28,12 +29,13 @@ const register = async (req, res) => { //ACID
         })
     }
     catch(error){
-        console.log(error);
+
         res.status(500).json({message: error.message});
     }
 }
 
-const login = async (req, res) => { //ACID
+//Iniciar sesión
+const login = async (req, res) => {
     try{
         const {username, password} = req.body;
 
@@ -61,7 +63,6 @@ const login = async (req, res) => { //ACID
     token});
     }
     catch(error){
-        console.log(error);
         res.status(500).json({message: error.message});
     }
 }

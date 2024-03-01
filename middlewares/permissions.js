@@ -1,8 +1,7 @@
 const jwt = require('jsonwebtoken');
 const userModel = require("../models/users.model.js");
 
-//Esto valida si sos admin, editor o simplemente si estas logueado, si tu cuenta esta desactivada no pasas el filtro
-
+//Función que comprueba la existencia de un token y si corresponde a un usuario válido lo pone a disposición de todo el sistema en req.user
 const validateToken = async (req, res, next) => {
     try {
         const token = req.header("Authorization");
@@ -20,11 +19,11 @@ const validateToken = async (req, res, next) => {
         next();
     }
     catch (error) {
-        console.log(error);
         res.status(500).json({message: error.message});
     }
 }
 
+//Comprueba que el usuario sea administrador
 const verifyAdmin = async (req, res, next) => {
     try {
         await validateToken(req, res, ()=>{
@@ -36,11 +35,11 @@ const verifyAdmin = async (req, res, next) => {
         });
     }
     catch(error){
-        console.log(error);
         res.status(401).json({message: "Acceso denegado"});
     }
 }
 
+//Comprueba que el usuario sea editor, en su defecto administrador
 const verifyEditor = async (req, res, next) => {
     try {
         await validateToken(req, res, ()=>{
@@ -52,11 +51,11 @@ const verifyEditor = async (req, res, next) => {
         });
     }
     catch(error){
-        console.log(error);
         res.status(401).json({message: "Acceso denegado"});
     }
 }
 
+//Comprueba que haya un usuario logueado
 const verifyUser = async (req, res, next) => {
     try {
         await validateToken(req, res, ()=>{
@@ -68,7 +67,6 @@ const verifyUser = async (req, res, next) => {
         });
     }
     catch(error){
-        console.log(error);
         res.status(401).json({message: "Acceso denegado"});
     }
 }

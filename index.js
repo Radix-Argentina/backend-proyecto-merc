@@ -37,6 +37,4 @@ app.use("/api", notesRoute);
 // Escucha del servidor
 (async () => await connectDB())();
 
-app.listen(port, () =>{
-    console.log(`Servidor corriendo en el puerto ${port}`)
-})
+app.listen(port);
