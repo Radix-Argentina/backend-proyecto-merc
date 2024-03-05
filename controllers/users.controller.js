@@ -74,12 +74,12 @@ const updateUserInfo = async (req, res) => {
                 const hash = await bcrypt.hash(req.body.password, 10)
                 user.password = hash;
             };
-            if(!validation.validateUsername(req.body?.username)) return res.status(400).json({message: "Nombre de usuario inválido"});
+            if(!validation.validateUsername(user.username)) return res.status(400).json({message: "Nombre de usuario inválido"});
             
-            const repeatedUsername = await userModel.findOne({username: req.body.username});
+            const repeatedUsername = await userModel.findOne({username: user.username});
             if(repeatedUsername && !repeatedUsername._id.equals(user._id)) return res.status(400).json({message: "El nombre de usuario ya está en uso"});
 
-            if(!validation.validatePassword(req.body?.password)) return res.status(400).json({message: "Contraseña inválida"});
+            if(req.body.password && !validation.validatePassword(req.body?.password)) return res.status(400).json({message: "Contraseña inválida"});
 
             await user.save();
             return res.status(200).json({message: "El usuario fue modificado con éxito"});
