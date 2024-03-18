@@ -22,7 +22,12 @@ const notesSchema = new Schema({
         required: true,
         immutable: true,
         ref: "users"
-    } 
+    },
+    fatherId: {
+        type: mongoose.Types.ObjectId,
+        required: true,
+        immutable: true,
+    }
 },{versionKey: false, timestamps: true});
 
 const notesModel = mongoose.model('notes', notesSchema);

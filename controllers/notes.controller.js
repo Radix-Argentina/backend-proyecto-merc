@@ -1,21 +1,28 @@
 const notesModel = require("../models/notes.model.js");
 const validation = require("../helpers/validations.js");
+const productModel = require("../models/products.model.js");
+const supplierModel = require("../models/suppliers.model.js");
 
 //Crear una nota
 const createNote = async (req, res) => {
     try {
-        const { title, text } = req.body;
+        const { title, text, fatherId } = req.body;
         if(!title) return res.status(400).json({ message: "El título es obligatorio"});
         if(!validation.validateTitle(title)) return res.status(400).json({ message: "Título inválido"});
         if(text && !validation.validateText(text)) return res.status(400).json({ message: "Texto inválido"});
         
+        const product = await productModel.findById(fatherId);
+        const supplier = await supplierModel.findById(fatherId);
+        if(!product && !supplier) return res.status(400).json({ message: "Producto o proveedor no encontrado"});
+
         const writerId = req.user._id;
 
         const note = new notesModel({
             title,
             text,
-            writerId
-        })
+            writerId,
+            fatherId,
+        });
 
         await note.save();
 
@@ -75,7 +82,8 @@ const deleteNote = async (req, res) => {
 //Buscar una nota por id
 const getAllNotes = async (req, res) => {
     try{
-        const notes = await notesModel.find().populate({
+        const { id } = req.query;
+        const notes = await notesModel.find({fatherId: id}).populate({
             path: "writerId",
             select: ["_id", "username", "isActive"]
         });
